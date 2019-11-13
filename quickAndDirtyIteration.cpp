@@ -37,6 +37,8 @@ using namespace glm;
 #define GLM_FORCE_RADIANS
 
 const int N = 40;
+string dataPath;
+
 // stocke les variables uniformes qui seront communes a tous les vertex dessines
 // dans une variable globale CAR
 // C'est dans la fonction loadShaders que nous pouvos recupere les bonnes valeurs de pointeur (une fois le shader compile/linke)
@@ -142,10 +144,39 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 	return ProgramID;
 }
 
+struct teamHistory{
+    vector<int> rank;
+    vector<int> points;
+    string name;
+};
+/**
+ * @param fileName : file toRead
+ * 
+ * @return: all team ranks.
+ **/
+vector<teamHistory> readData(string fileName){
+    ifstream dataFile;
+    dataFile.open(fileName);
+    string line;
 
-void 
+    vector<teamHistory> toReturn(0);
+
+    do {
+	    getline ( dataFile, line, '\n' );
+        cout<<line<<endl;
+    }while (line.length() > 0);
+    return toReturn;
+
+}
+
+
+void setup(){
+    dataPath = "DataProjet2019/data/";
+}
 
 int main(){
+    setup();
+    readData(dataPath+"englishR.csv");
     // Initialise GLFW
 	if( !glfwInit() )
 	{
