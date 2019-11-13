@@ -145,7 +145,7 @@ GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path
 }
 
 struct teamHistory{
-    vector<int> rank;
+    vector<int> ranks;
     vector<int> points;
     string name;
 };
@@ -155,16 +155,41 @@ struct teamHistory{
  * @return: all team ranks.
  **/
 vector<teamHistory> readData(string fileName){
+    //38 + 3 match
     ifstream dataFile;
     dataFile.open(fileName);
-    string line;
+    string extractedString;
 
     vector<teamHistory> toReturn(0);
-
+    getline(dataFile, extractedString, ',');
+    extractedString.erase(remove(extractedString.begin(),extractedString.end(),'\n'),extractedString.end());
     do {
-	    getline ( dataFile, line, '\n' );
-        cout<<line<<endl;
-    }while (line.length() > 0);
+        teamHistory now;
+        
+        now.name = extractedString;
+        
+
+        for (int i = 0; i < 41; i += 1){
+            getline(dataFile, extractedString, ',');
+            extractedString.erase(remove(extractedString.begin(),extractedString.end(),' '),extractedString.end());
+            now.ranks.push_back(stoi(extractedString));
+            getline(dataFile, extractedString, ',');
+            extractedString.erase(remove(extractedString.begin(),extractedString.end(),' '),extractedString.end());
+            now.points.push_back(stoi(extractedString));
+            getline(dataFile, extractedString, ',');
+            getline(dataFile, extractedString, ',');
+            getline(dataFile, extractedString, ',');
+            getline(dataFile, extractedString, ',');
+
+
+        }
+        toReturn.push_back(now);
+        cout <<"NAME = "<<now.name<<endl;
+        getline(dataFile, extractedString, ',');
+        extractedString.erase(remove(extractedString.begin(),extractedString.end(),'\n'),extractedString.end());
+
+
+    }while (extractedString.length() > 0);
     return toReturn;
 
 }
@@ -176,7 +201,7 @@ void setup(){
 
 int main(){
     setup();
-    readData(dataPath+"englishR.csv");
+    readData(dataPath+"rankspts.csv");
     // Initialise GLFW
 	if( !glfwInit() )
 	{
