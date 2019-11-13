@@ -1,6 +1,17 @@
 #ifndef MESH
 #define MESH
-#include lib.hpp
+#include <glm/gtc/type_ptr.hpp>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
+#include <string.h>
+#include <vector>
 
 struct Vertex {
     glm::vec3 Position;
@@ -17,12 +28,12 @@ struct Texture {
 class Mesh {
     public:
         /*  Mesh Data  */
-        vector<Vertex> vertices;
-        vector<unsigned int> indices;  
-        vector<Texture> textures;
+        std::vector<Vertex> vertices;
+        std::vector<unsigned int> indices;  
+        std::vector<Texture> textures;
         /*  Functions  */
-        Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
-        void Draw(Shader shader);
+        Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+        void Load();
     private:
         /*  Render data  */
         unsigned int VAO, VBO, EBO;
