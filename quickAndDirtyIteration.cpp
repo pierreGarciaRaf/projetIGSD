@@ -239,38 +239,51 @@ int main()
     }
 
     const int N = teamData.size();
-    GLfloat g_vertex_buffer_data[N * 3 * 2];
-    GLfloat g_vertex_color_data[N * 3 * 2];
+    const int maxTime = teamData[0].ranks.size();
+
+    GLfloat g_vertex_buffer_data[N * maxTime * 3 * 2];
+    GLfloat g_vertex_color_data[N * maxTime * 3 * 2];
     float sizeX = 1;
     float sizeY = 1;
-    for (int i = 0; i < N; i++)
+    int floatBufferIndex = 0;
+    float yScore = 0;
+    float xPos = 0;
+    for (int teamIndex = 0; teamIndex < N; teamIndex++)
     {
-        float r = (rand() % 1000) / 1000.0;
+        float colR = rand()/float(RAND_MAX);
+        float colG = rand()/float(RAND_MAX);
+        float colB = rand()/float(RAND_MAX);
+        for (int timeIndex = 0; timeIndex < maxTime; timeIndex +=1){
+            yScore = (teamData[teamIndex].ranks[timeIndex]/maxRank + teamData[teamIndex].points[timeIndex]/maxPoint)/2.0f;
+            
+            g_vertex_buffer_data[floatBufferIndex]=yScore;
+            g_vertex_color_data[floatBufferIndex] = colR;
+            floatBufferIndex +=1;
 
-        g_vertex_buffer_data[0 + i * 9] = 0.0;
-        g_vertex_buffer_data[1 + i * 9] = 0.0;
-        g_vertex_buffer_data[2 + i * 9] = 0.0;
+            xPos =float(timeIndex)/maxTime;
+            g_vertex_buffer_data[floatBufferIndex] = xPos;
+            g_vertex_color_data[floatBufferIndex] = colG;
+            floatBufferIndex +=1;
 
-        g_vertex_buffer_data[3 + i * 9] = 0.0 + r * cos((2 * i + 0) * M_PI / (N));
-        g_vertex_buffer_data[4 + i * 9] = 0.0 + r * sin((2 * i + 0) * M_PI / (N));
-        g_vertex_buffer_data[5 + i * 9] = 0.0;
+            g_vertex_buffer_data[floatBufferIndex] = 0.f;
+            g_vertex_color_data[floatBufferIndex] = colB;
+            floatBufferIndex +=1;
 
-        g_vertex_buffer_data[6 + i * 9] = 0.0 + r * cos((2 * i + 2) * M_PI / (N));
-        g_vertex_buffer_data[7 + i * 9] = 0.0 + r * sin((2 * i + 2) * M_PI / (N));
-        g_vertex_buffer_data[8 + i * 9] = 0.0;
+            g_vertex_buffer_data[floatBufferIndex]=yScore+0.01;
+            g_vertex_color_data[floatBufferIndex] = colR;
+            floatBufferIndex +=1;
 
-        g_vertex_color_data[0 + i * 9] = 0.0;
-        g_vertex_color_data[1 + i * 9] = 0.0;
-        g_vertex_color_data[2 + i * 9] = 1.0;
+            g_vertex_buffer_data[floatBufferIndex] = xPos;
+            g_vertex_color_data[floatBufferIndex] = colG;
+            floatBufferIndex +=1;
 
-        g_vertex_color_data[3 + i * 9] = 0.5;
-        g_vertex_color_data[4 + i * 9] = 0.0;
-        g_vertex_color_data[5 + i * 9] = 0.0;
-
-        g_vertex_color_data[6 + i * 9] = 1.0;
-        g_vertex_color_data[7 + i * 9] = 0.0;
-        g_vertex_color_data[8 + i * 9] = 0.0;
+            g_vertex_buffer_data[floatBufferIndex] = 0.f;
+            g_vertex_color_data[floatBufferIndex] = colB;
+            floatBufferIndex +=1;
+        }
+        
     }
+    cout<<"finished vertexfilling"<<endl;
 
     glfwWindowHint(GLFW_SAMPLES, 4);               // 4x antialiasing
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // On veut OpenGL 3.3
@@ -336,7 +349,6 @@ int main()
     float posY;
     do
     {
-        angle += angleIncrement;
 
         // clear before every draw 1
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -346,7 +358,7 @@ int main()
 
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.0f, 200.0f);
         glm::mat4 viewMatrix = glm::lookAt(
-            vec3(2 * cos(angle), 2 * sin(angle), 2), // where is the camara
+            vec3(0.1,0, 2), // where is the camara
             vec3(0, 0, 0),                           //where it looks
             vec3(0, 0, 1)                            // head is up
         );
@@ -377,9 +389,11 @@ int main()
             (void *)sizeof(g_vertex_buffer_data));
         glEnableVertexAttribArray(1);
 
-        // Draw the triangle !
-        glDrawArrays(GL_TRIANGLES, 0, sizeof(g_vertex_buffer_data) / (3 * sizeof(float))); // Starting from vertex 0; 6 vertices total -> 2 triangles
-
+        int sizeOfTeam = sizeof(g_vertex_buffer_data) / (3 * sizeof(float))/N;
+        for (int triangleStripIndex = 0; triangleStripIndex < N; triangleStripIndex +=1){
+            glDrawArrays(GL_TRIANGLE_STRIP, triangleStripIndex*sizeOfTeam, (triangleStripIndex + 1) * sizeOfTeam); 
+        }
+         
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
 
@@ -389,33 +403,9 @@ int main()
 
         // apres avoir recupere les evenements, on teste si la touche E est pressee et si c'est le cas
         // on re-genere des donnees
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        {
-            //g_vertex_buffer_data = malloc(sizeof(GLfloat)*N*3);
-            for (int i = 0; i < N; i++)
-            {
-                float r = (rand() % 1000) / 1000.0;
 
-                g_vertex_buffer_data[0 + i * 9] = 0.0;
-                g_vertex_buffer_data[1 + i * 9] = 0.0;
-                g_vertex_buffer_data[2 + i * 9] = 0.0;
 
-                g_vertex_buffer_data[3 + i * 9] = 0.0 + r * cos((2 * i + 0) * M_PI / (N));
-                g_vertex_buffer_data[4 + i * 9] = 0.0 + r * sin((2 * i + 0) * M_PI / (N));
-                g_vertex_buffer_data[5 + i * 9] = 0.0;
-
-                g_vertex_buffer_data[6 + i * 9] = 0.0 + r * cos((2 * i + 2) * M_PI / (N));
-                g_vertex_buffer_data[7 + i * 9] = 0.0 + r * sin((2 * i + 2) * M_PI / (N));
-                g_vertex_buffer_data[8 + i * 9] = 0.0;
-            }
-            // ici on n'envoie que les sommets car on souhaite garder les memes couleurs ... et le nombre
-            // n'a pas change !
-            glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(g_vertex_buffer_data), g_vertex_buffer_data);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        }
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+        /*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
             lastXpos = xpos;
             lastYpos = ypos;
@@ -432,8 +422,10 @@ int main()
             incrXpos = 0;
             incrYpos = 0;
         }
+        */
 
     } // Vérifie si on a appuyé sur la touche échap (ESC) ou si la fenêtre a été fermée
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0);
 }
+
