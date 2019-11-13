@@ -14,5 +14,5 @@ uniform mat4 projectionMatrix;
 
 void main(){
   gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertexPosition_modelspace, 1.0);
-  colort          = vertexColor_modelspace;
+  colort      = vertexColor_modelspace;
 }
