@@ -34,6 +34,9 @@ using namespace std;
 
 using namespace glm;
 
+
+bool wasPressingQ;
+bool wasPressingD;
 #define GLM_FORCE_RADIANS
 
 string dataPath;
@@ -246,13 +249,13 @@ int main()
     }
 
     const int N = teamData.size();
-    for (int i = 0; i < N; i += 1){
+    /*for (int i = 0; i < N; i += 1){
         toStringTeamHistory(teamData[i]);
-    }
-    const int maxTime = teamData[0].ranks.size();
+    }*/
+    const int numberOfMatches = teamData[0].ranks.size();
 
-    GLfloat g_vertex_buffer_data[N * maxTime * 3 * 2];
-    GLfloat g_vertex_color_data[N * maxTime * 3 * 2];
+    GLfloat g_vertex_buffer_data[N * numberOfMatches * 3 * 2];
+    GLfloat g_vertex_color_data[N * numberOfMatches * 3 * 2];
     float sizeX = 1;
     float sizeY = 1;
     int floatBufferIndex = 0;
@@ -260,18 +263,18 @@ int main()
     float xPos = 0.5f;
     for (int teamIndex = 0; teamIndex < N; teamIndex++)
     {
-        float colR = rand()/float(RAND_MAX);
-        float colG = rand()/float(RAND_MAX);
-        float colB = rand()/float(RAND_MAX);
-        for (int timeIndex = 0; timeIndex < maxTime; timeIndex +=1){
+        float colR = 0.5f+0.5f*rand()/float(RAND_MAX);
+        float colG = 0.5f+0.5f*rand()/float(RAND_MAX);
+        float colB = 0.5f+0.5f*rand()/float(RAND_MAX);
+        for (int timeIndex = 0; timeIndex < numberOfMatches; timeIndex +=1){
             yScore = -0.5f+(teamData[teamIndex].ranks[timeIndex]/maxRank + teamData[teamIndex].points[timeIndex]/maxPoint)/2.0f;
             
-            g_vertex_buffer_data[floatBufferIndex]=yScore;
+            xPos =float(timeIndex)/numberOfMatches;
+            g_vertex_buffer_data[floatBufferIndex]=xPos;
             g_vertex_color_data[floatBufferIndex] = colR;
             floatBufferIndex +=1;
 
-            xPos =float(timeIndex)/maxTime;
-            g_vertex_buffer_data[floatBufferIndex] = xPos;
+            g_vertex_buffer_data[floatBufferIndex] = yScore;
             g_vertex_color_data[floatBufferIndex] = colG;
             floatBufferIndex +=1;
 
@@ -279,11 +282,11 @@ int main()
             g_vertex_color_data[floatBufferIndex] = colB;
             floatBufferIndex +=1;
 
-            g_vertex_buffer_data[floatBufferIndex]=yScore+0.01;
+            g_vertex_buffer_data[floatBufferIndex]=xPos;
             g_vertex_color_data[floatBufferIndex] = colR;
             floatBufferIndex +=1;
 
-            g_vertex_buffer_data[floatBufferIndex] = xPos;
+            g_vertex_buffer_data[floatBufferIndex] = yScore+0.01;
             g_vertex_color_data[floatBufferIndex] = colG;
             floatBufferIndex +=1;
 
@@ -291,9 +294,7 @@ int main()
             g_vertex_color_data[floatBufferIndex] = colB;
             floatBufferIndex +=1;
         }
-
     }
-    cout<<"finished vertexfilling"<<endl;
     
     glfwWindowHint(GLFW_SAMPLES, 4);               // 4x antialiasing
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // On veut OpenGL 3.3
@@ -306,7 +307,8 @@ int main()
     window = glfwCreateWindow(1024, 768, "Pierre T  BO (merci Elie, c'est tres gentil).", NULL, NULL);
     if (window == NULL)
     {
-        fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
+        fprintf(stderr,
+        "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
         glfwTerminate();
         return -1;
     }
@@ -358,7 +360,8 @@ int main()
     double incrYpos = 0;
     float posY;
     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    glClearColor(1,0.4,0.4,1);
+    glClearColor(0,0,0,1);
+    int sizeOfTeam = numberOfMatches * 2;
     do
     {
 
@@ -370,9 +373,9 @@ int main()
 
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.0f, 200.0f);
         glm::mat4 viewMatrix = glm::lookAt(
-            vec3(0.1,0, -1.5), // where is the camara
+            vec3(0,0.1, 1.5), // where is the camara
             vec3(0, 0, 0),                           //where it looks
-            vec3(0, 0, -1)                            // head is up
+            vec3(0, 0, 1)                            // head is up
         );
         mat4 modelMatrix = glm::mat4(1.0);
         modelMatrix = translate(modelMatrix, vec3(0, 0, posY));
@@ -400,10 +403,10 @@ int main()
             0,
             (void *)sizeof(g_vertex_buffer_data));
         glEnableVertexAttribArray(1);
-
-        int sizeOfTeam = sizeof(g_vertex_buffer_data) / (3 * sizeof(float))/N;
+        
+        
         for (int triangleStripIndex = 0; triangleStripIndex < N; triangleStripIndex +=1){
-            glDrawArrays(GL_TRIANGLE_STRIP, triangleStripIndex*sizeOfTeam, (triangleStripIndex + 1) * sizeOfTeam); 
+            glDrawArrays(GL_TRIANGLE_STRIP, triangleStripIndex*sizeOfTeam, sizeOfTeam); 
         }
          
         glDisableVertexAttribArray(0);
@@ -413,8 +416,28 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        // apres avoir recupere les evenements, on teste si la touche E est pressee et si c'est le cas
-        // on re-genere des donnees
+        if (glfwGetKey(window,GLFW_KEY_Q)==GLFW_PRESS){
+            if (! wasPressingQ){
+                sizeOfTeam -= 1;
+                cout<<sizeOfTeam<<endl;
+
+            }
+            wasPressingQ = true;
+        }
+        else{
+            wasPressingQ = false;
+        }
+        if (glfwGetKey(window,GLFW_KEY_D)==GLFW_PRESS){
+            if (!wasPressingD){
+                sizeOfTeam += 1;
+                cout<<sizeOfTeam<<endl;
+
+            }
+            wasPressingD = true;
+        }
+        else{
+            wasPressingD = false;
+        }
 
 
         /*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
