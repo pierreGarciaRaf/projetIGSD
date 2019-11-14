@@ -152,6 +152,14 @@ struct teamHistory
     float maxRank;
     string name;
 };
+
+void toStringTeamHistory(teamHistory th){
+    cout << th.name + " : ";
+    for (int matchIndex = 0; matchIndex < th.ranks.size(); matchIndex +=1){
+        cout<< '{' << th.ranks[matchIndex] << ',' << th.points[matchIndex] << "}";
+    }
+    cout<<endl;
+}
 /**
  * @param fileName : file toRead
  * 
@@ -193,15 +201,14 @@ vector<teamHistory> readData(string fileName)
             {
                 now.maxPoint = rankOrPoint;
             }
-
             now.points.push_back(rankOrPoint);
             getline(dataFile, extractedString, ',');
             getline(dataFile, extractedString, ',');
             getline(dataFile, extractedString, ',');
             getline(dataFile, extractedString, ',');
         }
+        //getline(dataFile, extractedString, ',');
         toReturn.push_back(now);
-        cout << "NAME = " << now.name << endl;
         getline(dataFile, extractedString, ',');
         extractedString.erase(remove(extractedString.begin(), extractedString.end(), '\n'), extractedString.end());
 
@@ -239,6 +246,9 @@ int main()
     }
 
     const int N = teamData.size();
+    for (int i = 0; i < N; i += 1){
+        toStringTeamHistory(teamData[i]);
+    }
     const int maxTime = teamData[0].ranks.size();
 
     GLfloat g_vertex_buffer_data[N * maxTime * 3 * 2];
@@ -247,14 +257,14 @@ int main()
     float sizeY = 1;
     int floatBufferIndex = 0;
     float yScore = 0;
-    float xPos = 0;
+    float xPos = 0.5f;
     for (int teamIndex = 0; teamIndex < N; teamIndex++)
     {
         float colR = rand()/float(RAND_MAX);
         float colG = rand()/float(RAND_MAX);
         float colB = rand()/float(RAND_MAX);
         for (int timeIndex = 0; timeIndex < maxTime; timeIndex +=1){
-            yScore = (teamData[teamIndex].ranks[timeIndex]/maxRank + teamData[teamIndex].points[timeIndex]/maxPoint)/2.0f;
+            yScore = -0.5f+(teamData[teamIndex].ranks[timeIndex]/maxRank + teamData[teamIndex].points[timeIndex]/maxPoint)/2.0f;
             
             g_vertex_buffer_data[floatBufferIndex]=yScore;
             g_vertex_color_data[floatBufferIndex] = colR;
@@ -281,10 +291,10 @@ int main()
             g_vertex_color_data[floatBufferIndex] = colB;
             floatBufferIndex +=1;
         }
-        
+
     }
     cout<<"finished vertexfilling"<<endl;
-
+    
     glfwWindowHint(GLFW_SAMPLES, 4);               // 4x antialiasing
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // On veut OpenGL 3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -293,7 +303,7 @@ int main()
 
     // Ouvre une fenêtre et crée son contexte OpenGl
     GLFWwindow *window; // (Dans le code source qui accompagne, cette variable est globale)
-    window = glfwCreateWindow(1024, 768, "Tutorial 01", NULL, NULL);
+    window = glfwCreateWindow(1024, 768, "Pierre T  BO (merci Elie, c'est tres gentil).", NULL, NULL);
     if (window == NULL)
     {
         fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
@@ -347,6 +357,8 @@ int main()
     double incrXpos = 0;
     double incrYpos = 0;
     float posY;
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glClearColor(1,0.4,0.4,1);
     do
     {
 
@@ -358,9 +370,9 @@ int main()
 
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.0f, 200.0f);
         glm::mat4 viewMatrix = glm::lookAt(
-            vec3(0.1,0, 2), // where is the camara
+            vec3(0.1,0, -1.5), // where is the camara
             vec3(0, 0, 0),                           //where it looks
-            vec3(0, 0, 1)                            // head is up
+            vec3(0, 0, -1)                            // head is up
         );
         mat4 modelMatrix = glm::mat4(1.0);
         modelMatrix = translate(modelMatrix, vec3(0, 0, posY));
