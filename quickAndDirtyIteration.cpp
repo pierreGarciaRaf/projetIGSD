@@ -147,77 +147,6 @@ GLuint LoadShaders(const char *vertex_file_path, const char *fragment_file_path)
     return ProgramID;
 }
 
-struct teamHistory
-{
-    vector<float> ranks;
-    vector<float> points;
-    float maxPoint;
-    float maxRank;
-    string name;
-};
-
-void toStringTeamHistory(teamHistory th){
-    cout << th.name + " : ";
-    for (int matchIndex = 0; matchIndex < th.ranks.size(); matchIndex +=1){
-        cout<< '{' << th.ranks[matchIndex] << ',' << th.points[matchIndex] << "}";
-    }
-    cout<<endl;
-}
-/**
- * @param fileName : file toRead
- * 
- * @return: all team ranks.
- **/
-vector<teamHistory> readData(string fileName)
-{
-    //38 + 3 match
-    ifstream dataFile;
-    dataFile.open(fileName);
-    string extractedString;
-
-    vector<teamHistory> toReturn(0);
-    getline(dataFile, extractedString, ',');
-    extractedString.erase(remove(extractedString.begin(), extractedString.end(), '\n'), extractedString.end());
-    int rankOrPoint;
-
-    do
-    {
-        teamHistory now;
-
-        now.name = extractedString;
-        now.maxPoint = 0;
-        now.maxRank = 0;
-        for (int i = 0; i < 41; i += 1)
-        {
-            getline(dataFile, extractedString, ',');
-            extractedString.erase(remove(extractedString.begin(), extractedString.end(), ' '), extractedString.end());
-            rankOrPoint = stoi(extractedString);
-            now.ranks.push_back(rankOrPoint);
-            if (rankOrPoint > now.maxRank)
-            {
-                now.maxRank = rankOrPoint;
-            }
-            getline(dataFile, extractedString, ',');
-            extractedString.erase(remove(extractedString.begin(), extractedString.end(), ' '), extractedString.end());
-            rankOrPoint = stoi(extractedString);
-            if (rankOrPoint > now.maxPoint)
-            {
-                now.maxPoint = rankOrPoint;
-            }
-            now.points.push_back(rankOrPoint);
-            getline(dataFile, extractedString, ',');
-            getline(dataFile, extractedString, ',');
-            getline(dataFile, extractedString, ',');
-            getline(dataFile, extractedString, ',');
-        }
-        //getline(dataFile, extractedString, ',');
-        toReturn.push_back(now);
-        getline(dataFile, extractedString, ',');
-        extractedString.erase(remove(extractedString.begin(), extractedString.end(), '\n'), extractedString.end());
-
-    } while (extractedString.length() > 0);
-    return toReturn;
-}
 
 void setup()
 {
@@ -249,13 +178,10 @@ int main()
     }
 
     const int N = teamData.size();
-    /*for (int i = 0; i < N; i += 1){
-        toStringTeamHistory(teamData[i]);
-    }*/
-    const int numberOfMatches = teamData[0].ranks.size();
+    const int numberOfGames = teamData[0].ranks.size();
 
-    GLfloat g_vertex_buffer_data[N * numberOfMatches * 3 * 2];
-    GLfloat g_vertex_color_data[N * numberOfMatches * 3 * 2];
+    GLfloat g_vertex_buffer_data[N * numberOfGames * 3 * 2];
+    GLfloat g_vertex_color_data[N * numberOfGames * 3 * 2];
     float sizeX = 1;
     float sizeY = 1;
     int floatBufferIndex = 0;
@@ -266,10 +192,10 @@ int main()
         float colR = 0.5f+0.5f*rand()/float(RAND_MAX);
         float colG = 0.5f+0.5f*rand()/float(RAND_MAX);
         float colB = 0.5f+0.5f*rand()/float(RAND_MAX);
-        for (int timeIndex = 0; timeIndex < numberOfMatches; timeIndex +=1){
+        for (int timeIndex = 0; timeIndex < numberOfGames; timeIndex +=1){
             yScore = -0.5f+(teamData[teamIndex].ranks[timeIndex]/maxRank + teamData[teamIndex].points[timeIndex]/maxPoint)/2.0f;
             
-            xPos =float(timeIndex)/numberOfMatches;
+            xPos =float(timeIndex)/numberOfGames;
             g_vertex_buffer_data[floatBufferIndex]=xPos;
             g_vertex_color_data[floatBufferIndex] = colR;
             floatBufferIndex +=1;
@@ -359,9 +285,9 @@ int main()
     double incrXpos = 0;
     double incrYpos = 0;
     float posY;
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glClearColor(0,0,0,1);
-    int sizeOfTeam = numberOfMatches * 2;
+    int sizeOfTeam = numberOfGames * 2;
     do
     {
 
