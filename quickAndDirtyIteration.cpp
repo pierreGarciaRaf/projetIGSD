@@ -35,6 +35,8 @@ using namespace std;
 using namespace glm;
 
 
+#include "fileReader.hpp"
+
 bool wasPressingQ;
 bool wasPressingD;
 #define GLM_FORCE_RADIANS

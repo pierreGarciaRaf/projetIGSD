@@ -5,4 +5,6 @@ CXXFLAGS = -Wall -std=c++11 -g -I/u/usr/local/include/ -lglfw -lGLEW -framework 
 
 
 
-quickAndDirtyIteration: quickAndDirtyIteration.cpp
+quickAndDirtyIteration: quickAndDirtyIteration.cpp fileReader.o
+
+fileReader.o: fileReader.cpp fileReader.hpp
