@@ -181,7 +181,7 @@ int main()
 
     const int N = teamData.size();
     const int numberOfGames = teamData[0].ranks.size();
-
+    
     GLfloat g_vertex_buffer_data[N * numberOfGames * 3 * 2];
     GLfloat g_vertex_color_data[N * numberOfGames * 3 * 2];
     float sizeX = 1;
