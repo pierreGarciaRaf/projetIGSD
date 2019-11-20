@@ -12,7 +12,7 @@ using namespace glm;
 #include "fileReader.hpp"
 
 
-vector<curve> genCurveSkeletons(vector<teamHistory> th,vec3 offset){
+vector<curve> genBasicCurve(vector<teamHistory> th,vec3 offset){
     float maxRank = 0;
     float maxPoint = 0;
     for (int i = 0; i < th.size(); i += 1)
@@ -50,7 +50,7 @@ vector<int> genBasicVBOs(vector<curve> curves,  GLfloat *XYZcoords[], GLfloat *U
         VBOsizes[curveIndex] = curves[curveIndex].xYZSCoords.size();
         totalNumberOfPoints += VBOsizes[curveIndex];
     }
-
+    
     *XYZcoords = new GLfloat[totalNumberOfPoints*3];
     *UVcoords = new GLfloat[totalNumberOfPoints*2];
     *colors = new GLfloat[totalNumberOfPoints*3];
@@ -70,5 +70,5 @@ vector<int> genBasicVBOs(vector<curve> curves,  GLfloat *XYZcoords[], GLfloat *U
             *colors[3*point+2] = curves[curveIndex].colors[point].b;
         }
     }
-
+    return VBOsizes;
 }

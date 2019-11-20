@@ -34,8 +34,9 @@ using namespace std;
 
 using namespace glm;
 
-
+//my includes
 #include "fileReader.hpp"
+#include "curve.hpp"
 
 bool wasPressingQ;
 bool wasPressingD;
@@ -159,19 +160,6 @@ int main()
 {
     setup();
     vector<teamHistory> teamData = readData(dataPath + "rankspts.csv");
-    float maxRank = 0;
-    float maxPoint = 0;
-    for (int i = 0; i < teamData.size(); i += 1)
-    {
-        if (maxRank < teamData[i].maxRank)
-        {
-            maxRank = teamData[i].maxRank;
-        }
-        if (maxPoint < teamData[i].maxPoint)
-        {
-            maxPoint = teamData[i].maxPoint;
-        }
-    }
     // Initialise GLFW
     if (!glfwInit())
     {
@@ -182,47 +170,14 @@ int main()
     const int N = teamData.size();
     const int numberOfGames = teamData[0].ranks.size();
     
-    GLfloat g_vertex_buffer_data[N * numberOfGames * 3 * 2];
-    GLfloat g_vertex_color_data[N * numberOfGames * 3 * 2];
-    float sizeX = 1;
-    float sizeY = 1;
-    int floatBufferIndex = 0;
-    float yScore = 0;
-    float xPos = 0.5f;
-    for (int teamIndex = 0; teamIndex < N; teamIndex++)
-    {
-        float colR = 0.5f+0.5f*rand()/float(RAND_MAX);
-        float colG = 0.5f+0.5f*rand()/float(RAND_MAX);
-        float colB = 0.5f+0.5f*rand()/float(RAND_MAX);
-        for (int timeIndex = 0; timeIndex < numberOfGames; timeIndex +=1){
-            yScore = -0.5f+(teamData[teamIndex].ranks[timeIndex]/maxRank + teamData[teamIndex].points[timeIndex]/maxPoint)/2.0f;
-            
-            xPos =float(timeIndex)/numberOfGames;
-            g_vertex_buffer_data[floatBufferIndex]=xPos;
-            g_vertex_color_data[floatBufferIndex] = colR;
-            floatBufferIndex +=1;
-
-            g_vertex_buffer_data[floatBufferIndex] = yScore;
-            g_vertex_color_data[floatBufferIndex] = colG;
-            floatBufferIndex +=1;
-
-            g_vertex_buffer_data[floatBufferIndex] = 0.f;
-            g_vertex_color_data[floatBufferIndex] = colB;
-            floatBufferIndex +=1;
-
-            g_vertex_buffer_data[floatBufferIndex]=xPos;
-            g_vertex_color_data[floatBufferIndex] = colR;
-            floatBufferIndex +=1;
-
-            g_vertex_buffer_data[floatBufferIndex] = yScore+0.01;
-            g_vertex_color_data[floatBufferIndex] = colG;
-            floatBufferIndex +=1;
-
-            g_vertex_buffer_data[floatBufferIndex] = 0.f;
-            g_vertex_color_data[floatBufferIndex] = colB;
-            floatBufferIndex +=1;
-        }
-    }
+    GLfloat g_vertex_buffer_data[0];
+    GLfloat g_vertex_color_data[0];
+    GLfloat g_vertex_UV_data[0];
+    
+    vector<int> numberOfPointPerTeam = genBasicVBOs(  genBasicCurve(teamData, vec3(0,0,0)),
+                                    g_vertex_buffer_data,
+                                    g_vertex_color_data,
+                                    g_vertex_UV_data);
     
     glfwWindowHint(GLFW_SAMPLES, 4);               // 4x antialiasing
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // On veut OpenGL 3.3
@@ -289,7 +244,6 @@ int main()
     float posY;
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glClearColor(0,0,0,1);
-    int sizeOfTeam = numberOfGames * 2;
     do
     {
 
@@ -332,9 +286,10 @@ int main()
             (void *)sizeof(g_vertex_buffer_data));
         glEnableVertexAttribArray(1);
         
-        
-        for (int triangleStripIndex = 0; triangleStripIndex < N; triangleStripIndex +=1){
-            glDrawArrays(GL_TRIANGLE_STRIP, triangleStripIndex*sizeOfTeam, sizeOfTeam); 
+        int firstVertex = 0;
+        for (int triangleStripIndex = 0; triangleStripIndex < numberOfPointPerTeam.size(); triangleStripIndex +=1){
+            glDrawArrays(GL_TRIANGLE_STRIP, firstVertex, numberOfPointPerTeam[triangleStripIndex]); 
+            firstVertex += numberOfPointPerTeam[triangleStripIndex];
         }
          
         glDisableVertexAttribArray(0);
@@ -344,28 +299,6 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        if (glfwGetKey(window,GLFW_KEY_Q)==GLFW_PRESS){
-            if (! wasPressingQ){
-                sizeOfTeam -= 1;
-                cout<<sizeOfTeam<<endl;
-
-            }
-            wasPressingQ = true;
-        }
-        else{
-            wasPressingQ = false;
-        }
-        if (glfwGetKey(window,GLFW_KEY_D)==GLFW_PRESS){
-            if (!wasPressingD){
-                sizeOfTeam += 1;
-                cout<<sizeOfTeam<<endl;
-
-            }
-            wasPressingD = true;
-        }
-        else{
-            wasPressingD = false;
-        }
 
 
         /*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)

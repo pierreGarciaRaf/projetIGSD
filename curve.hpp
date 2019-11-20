@@ -2,6 +2,7 @@
  * Contains the general structure of points coordinates for the teams.
  * the three first coordinates are the usual ones, x, y & z.
  * the last one corresponds to the weight of this point.
+ * UV & colors are pretty evident.
  **/
 struct curve{
     vector<vec4> xYZSCoords;
@@ -11,8 +12,11 @@ struct curve{
 
 /**
  * from a teamhistory vector generates a basic curve (simple strings of points.)
+ * @param th teamhistory vector initialized with fileReader functions.
+ * @param offset where is the origin of the curve.
  **/
-vector<curve> genBasicCurve(vector<teamHistory> th);
+vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset);
+
 
 /**
  * converts the vector to a VAO :
@@ -28,6 +32,4 @@ vector<curve> genBasicCurve(vector<teamHistory> th);
  *              the VBO for vertex colors it needs to create.
  * 
  **/
-
-
 vector<int> genBasicVBOs(vector<curve> curves,  GLfloat *XYZcoords, GLfloat *UVcoords, GLfloat *colors);
