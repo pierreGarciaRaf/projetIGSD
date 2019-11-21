@@ -1,15 +1,19 @@
 #include <vector>
+#include <string>
+#include <iostream>
+
+
 #include <glm/glm.hpp>
-
-using namespace std;
-using namespace glm;
-
 #include <OpenGL/gl.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "curve.hpp"
+using namespace std;
+using namespace glm;
+
+
 #include "fileReader.hpp"
+#include "curve.hpp"
 
 
 vector<curve> genBasicCurve(vector<teamHistory> th,vec3 offset){
@@ -29,46 +33,68 @@ vector<curve> genBasicCurve(vector<teamHistory> th,vec3 offset){
     int N = th.size();
     int numberOfGames = th[0].points.size();
     vector<curve> curves = vector<curve>(N);
+    
     for (int teamIndex = 0; teamIndex < N; teamIndex++)
     {
+        vector<vec3> nowColors = vector<vec3>(0);
+        vector<vec4> nowCoords = vector<vec4>(0);
         for (int timeIndex = 0; timeIndex < numberOfGames; timeIndex +=1){
-            curves[teamIndex].xYZSCoords.push_back(vec4(
-                offset.x+(th[teamIndex].ranks[timeIndex]/maxRank +
-                th[teamIndex].points[timeIndex]/maxPoint)/2.0f,
+            nowCoords.push_back(vec4(offset.x,
+
                 offset.y + float(timeIndex)/numberOfGames,
-                offset.z,
+
+                offset.z + (th[teamIndex].ranks[timeIndex]/maxRank +
+                th[teamIndex].points[timeIndex]/maxPoint)/2.0f,
+                
                 1));
+            nowColors.push_back(vec3(1,1,1));
             }
+        curves[teamIndex].xYZSCoords = nowCoords;
+        curves[teamIndex].uVcoords = vector<vec2>(numberOfGames);
+        curves[teamIndex].colors = nowColors;
     }
+    return curves;
 }
 
-
-vector<int> genBasicVBOs(vector<curve> curves,  GLfloat *XYZcoords[], GLfloat *UVcoords[], GLfloat *colors[]){
-    vector<int> VBOsizes = vector<int>(curves.size());
+vector<int> getVBOsSizes(const vector<curve> &curves){
+    vector<int> VBOsizes = vector<int>(3);
     int totalNumberOfPoints = 0;
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex+= 1){
-        VBOsizes[curveIndex] = curves[curveIndex].xYZSCoords.size();
-        totalNumberOfPoints += VBOsizes[curveIndex];
+        totalNumberOfPoints += curves[curveIndex].xYZSCoords.size();
     }
-    
-    *XYZcoords = new GLfloat[totalNumberOfPoints*3];
-    *UVcoords = new GLfloat[totalNumberOfPoints*2];
-    *colors = new GLfloat[totalNumberOfPoints*3];
+    VBOsizes[0] = totalNumberOfPoints * 3;
+    VBOsizes[1] = totalNumberOfPoints * 3;
+    VBOsizes[2] = totalNumberOfPoints * 2;
+    return VBOsizes;
+}
+vector<int> genVBOs(vector<curve> curves,  GLfloat XYZcoords[], GLfloat UVcoords[], GLfloat colors[]){
+    vector<int> curveSize = vector<int>(curves.size());
+    int totalNumberOfPoints = 0;
+    for (int curveIndex = 0; curveIndex < curves.size(); curveIndex+= 1){
+        curveSize[curveIndex] = curves[curveIndex].xYZSCoords.size();
+    }
 
+    cout<<"new GLfloat"<<endl;
+    unsigned int buffer3Index = 0;
+    unsigned int buffer2Index = 0;
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex+= 1){
         for (int point = 0; point < curves[curveIndex].xYZSCoords.size(); point+= 1){
+            XYZcoords[buffer3Index] = curves[curveIndex].xYZSCoords[point].x;
+            colors[buffer3Index] = curves[curveIndex].colors[point].r;
+            buffer3Index+=1;
+            XYZcoords[buffer3Index] = curves[curveIndex].xYZSCoords[point].y;
+            colors[buffer3Index] = curves[curveIndex].colors[point].g;
+            buffer3Index+=1;
+            XYZcoords[buffer3Index] = curves[curveIndex].xYZSCoords[point].z;
+            colors[buffer3Index] = curves[curveIndex].colors[point].b;
+            buffer3Index+=1;
 
-            *XYZcoords[3*point  ] = curves[curveIndex].xYZSCoords[point].x;
-            *XYZcoords[3*point+1] = curves[curveIndex].xYZSCoords[point].y;
-            *XYZcoords[3*point+2] = curves[curveIndex].xYZSCoords[point].z;
+            UVcoords[buffer2Index] = curves[curveIndex].uVcoords[point].x;
+            buffer2Index+=1;
+            UVcoords[buffer2Index] = curves[curveIndex].uVcoords[point].y;
+            buffer2Index+=1;
 
-            *UVcoords[2*point  ] = curves[curveIndex].uVcoords[point].x;
-            *UVcoords[2*point+1] = curves[curveIndex].uVcoords[point].y;
-
-            *colors[3*point  ] = curves[curveIndex].colors[point].r;
-            *colors[3*point+1] = curves[curveIndex].colors[point].g;
-            *colors[3*point+2] = curves[curveIndex].colors[point].b;
         }
     }
-    return VBOsizes;
+    return curveSize;
 }

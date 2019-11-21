@@ -1,3 +1,5 @@
+#ifndef FREADER
+#define FREADER
 /**
  * Has all the information to make a curve skeleton.
  * 
@@ -20,3 +22,4 @@ void printTeamHistory(teamHistory th);
  * fills a team using the path/fileName : fileName.
  **/
 vector<teamHistory> readData(string fileName);
+#endif FREADER

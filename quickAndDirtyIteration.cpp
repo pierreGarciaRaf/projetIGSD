@@ -160,6 +160,7 @@ int main()
 {
     setup();
     vector<teamHistory> teamData = readData(dataPath + "rankspts.csv");
+    
     // Initialise GLFW
     if (!glfwInit())
     {
@@ -170,15 +171,27 @@ int main()
     const int N = teamData.size();
     const int numberOfGames = teamData[0].ranks.size();
     
-    GLfloat g_vertex_buffer_data[0];
-    GLfloat g_vertex_color_data[0];
-    GLfloat g_vertex_UV_data[0];
     
-    vector<int> numberOfPointPerTeam = genBasicVBOs(  genBasicCurve(teamData, vec3(0,0,0)),
-                                    g_vertex_buffer_data,
+    vector<curve> curves=genBasicCurve(teamData, vec3(0,0,0));
+    cout<<"before VBO"<<endl;
+    vector<int> VBOsizes = getVBOsSizes(curves);
+    GLfloat g_vertex_buffer_data[VBOsizes[0]];
+    GLfloat g_vertex_color_data[VBOsizes[1]];
+    GLfloat g_vertex_UV_data[VBOsizes[2]];
+    vector<int> numberOfPointPerTeam = genVBOs(curves,                g_vertex_buffer_data,
                                     g_vertex_color_data,
                                     g_vertex_UV_data);
     
+    
+    int nVertex =0;
+    for (int i =0; i < numberOfPointPerTeam.size(); i += 1){
+        nVertex+=numberOfPointPerTeam[i];
+    }
+
+    for (int i =0; i < nVertex; i+=1){
+        cout<<'{'<<g_vertex_buffer_data[i*3]<<';'<<g_vertex_buffer_data[i*3+1]<<';'<<g_vertex_buffer_data[i*3+2]<<'}'<<endl;
+    }
+
     glfwWindowHint(GLFW_SAMPLES, 4);               // 4x antialiasing
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // On veut OpenGL 3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -253,11 +266,11 @@ int main()
         // Use our shader
         glUseProgram(programID);
 
-        glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.0f, 200.0f);
+        glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 200.0f);
         glm::mat4 viewMatrix = glm::lookAt(
-            vec3(0,0.1, 1.5), // where is the camara
+            vec3(3,0, 0), // where is the camara
             vec3(0, 0, 0),                           //where it looks
-            vec3(0, 0, 1)                            // head is up
+            vec3(0, 0, -1)                            // head is up
         );
         mat4 modelMatrix = glm::mat4(1.0);
         modelMatrix = translate(modelMatrix, vec3(0, 0, posY));

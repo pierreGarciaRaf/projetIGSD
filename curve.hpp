@@ -1,3 +1,6 @@
+#ifndef CURVE
+#define CURVE
+
 /**
  * Contains the general structure of points coordinates for the teams.
  * the three first coordinates are the usual ones, x, y & z.
@@ -18,6 +21,9 @@ struct curve{
 vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset);
 
 
+vector<int> getVBOsSizes(const vector<curve> &curves);
+
+
 /**
  * converts the vector to a VAO :
  *  @return vector<int>:
@@ -32,4 +38,5 @@ vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset);
  *              the VBO for vertex colors it needs to create.
  * 
  **/
-vector<int> genBasicVBOs(vector<curve> curves,  GLfloat *XYZcoords, GLfloat *UVcoords, GLfloat *colors);
+vector<int> genVBOs(vector<curve> curves,  GLfloat XYZcoords[], GLfloat UVcoords[], GLfloat colors[]);
+#endif
