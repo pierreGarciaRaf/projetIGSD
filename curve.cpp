@@ -98,7 +98,6 @@ vector<int> genVBOs(vector<curve> curves,  GLfloat XYZcoords[], GLfloat UVcoords
         curveSize[curveIndex] = curves[curveIndex].xYZSCoords.size();
     }
 
-    cout<<"new GLfloat"<<endl;
     unsigned int buffer3Index = 0;
     unsigned int buffer2Index = 0;
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex+= 1){

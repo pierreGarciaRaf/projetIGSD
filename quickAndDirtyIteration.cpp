@@ -191,9 +191,6 @@ int main()
         nVertex+=numberOfPointPerTeam[i];
     }
 
-    for (int i =0; i < nVertex; i+=1){
-        cout<<'{'<<g_vertex_buffer_data[i*3]<<';'<<g_vertex_buffer_data[i*3+1]<<';'<<g_vertex_buffer_data[i*3+2]<<'}'<<endl;
-    }
 
     glfwWindowHint(GLFW_SAMPLES, 4);               // 4x antialiasing
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // On veut OpenGL 3.3
