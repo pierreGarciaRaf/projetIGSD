@@ -82,6 +82,9 @@ vector<curve> squareModifier(const vector<curve> &basic, vec4 offset)
     return newCurves;
 }
 
+vec4 getMeanNANBNormalToCNormalized(const vec4 &A,const vec4 &B ,const vec3 C){
+    return vec4(normalize(cross(vec3(normalize(normalize(A) - normalize(B))),C)),1);
+}
 
 
 curve skinModifier(const curve &basic, float size)
@@ -92,17 +95,18 @@ curve skinModifier(const curve &basic, float size)
     vector<vec2> newUvs = vector<vec2>(basic.uVcoords.size() * 2);
     vec3 normalVector = cross(vec3(basic.xYZSCoords[0] - basic.xYZSCoords[1]), vec3(1.f, 0.f, 0.f));
     normalVector = normalize(normalVector);
-
+    normalVector = getMeanNANBNormalToCNormalized(
+        vec4(0.f),
+        basic.xYZSCoords[0] - basic.xYZSCoords[1],
+        vec3(-1.f, 0.f, 0.f));
+    newPoints[0] = basic.xYZSCoords[0] - vec4(normalVector * size * 0.5f, 0);
+    newPoints[1] = basic.xYZSCoords[0] + vec4(normalVector * size * 0.5f, 0);
     for (int pointIndex = 1; pointIndex < basic.xYZSCoords.size() - 1; pointIndex += 1)
     {
-        normalVector = normalize(
-            cross(vec3(
-                normalize(basic.xYZSCoords[pointIndex] - basic.xYZSCoords[pointIndex - 1])),
-                vec3(1.f, 0, 0)) +
-            cross(vec3(
-                normalize(basic.xYZSCoords[pointIndex] - basic.xYZSCoords[pointIndex + 1])),
-                vec3(-1.f, 0.f, 0.f)));
-        cout << normalVector.x << ';' << normalVector.y << ';' << normalVector.z << endl;
+        normalVector = getMeanNANBNormalToCNormalized(
+        basic.xYZSCoords[pointIndex] - basic.xYZSCoords[pointIndex - 1],
+        basic.xYZSCoords[pointIndex] - basic.xYZSCoords[pointIndex + 1],
+        vec3(-1.f, 0.f, 0.f));
 
         newPoints[2 * pointIndex] = basic.xYZSCoords[pointIndex] - vec4(normalVector * size * 0.5f, 0);
         newPoints[2 * pointIndex + 1] = basic.xYZSCoords[pointIndex] + vec4(normalVector * size * 0.5f, 0);
@@ -113,6 +117,13 @@ curve skinModifier(const curve &basic, float size)
         newUvs[2 * pointIndex] = basic.uVcoords[pointIndex];
         newUvs[2 * pointIndex + 1] = basic.uVcoords[pointIndex];
     }
+
+    normalVector = getMeanNANBNormalToCNormalized(
+        vec4(0.f),
+        basic.xYZSCoords[basic.xYZSCoords.size()] - basic.xYZSCoords[basic.xYZSCoords.size() - 1],
+        vec3(-1.f, 0.f, 0.f));
+    newPoints[(basic.xYZSCoords.size() - 1)*2] = basic.xYZSCoords[basic.xYZSCoords.size() - 1] - vec4(normalVector * size * 0.5f, 0);
+    newPoints[(basic.xYZSCoords.size() - 1)*2+1] = basic.xYZSCoords[basic.xYZSCoords.size() - 1] + vec4(normalVector * size * 0.5f, 0);
 
     return curve{newPoints, newUvs, newColors};
 }
