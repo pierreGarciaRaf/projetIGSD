@@ -20,6 +20,7 @@ struct curve{
  **/
 vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset);
 
+vector<curve> squareModifier(const vector<curve> &basic, vec4 offset);
 
 vector<int> getVBOsSizes(const vector<curve> &curves);
 

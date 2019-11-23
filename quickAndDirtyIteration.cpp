@@ -172,15 +172,18 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genBasicCurve(teamData, vec3(0,0,0));
-    cout<<"before VBO"<<endl;
+    vector<curve> curves=genBasicCurve(teamData, vec3(0,-0.5f,-0.25f));
+    curves=squareModifier(curves,vec4(0,0,0.01,0));
+    
+
     vector<int> VBOsizes = getVBOsSizes(curves);
     GLfloat g_vertex_buffer_data[VBOsizes[0]];
     GLfloat g_vertex_color_data[VBOsizes[1]];
     GLfloat g_vertex_UV_data[VBOsizes[2]];
-    vector<int> numberOfPointPerTeam = genVBOs(curves,                g_vertex_buffer_data,
-                                    g_vertex_color_data,
-                                    g_vertex_UV_data);
+    vector<int> numberOfPointPerTeam  = genVBOs(curves, g_vertex_buffer_data,
+                                    g_vertex_UV_data,
+                                    g_vertex_color_data);
+    
     
     
     int nVertex =0;
@@ -256,7 +259,7 @@ int main()
     double incrYpos = 0;
     float posY;
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    glClearColor(0,0,0,1);
+    glClearColor(1,1,1,1);
     do
     {
 
@@ -268,7 +271,7 @@ int main()
 
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 200.0f);
         glm::mat4 viewMatrix = glm::lookAt(
-            vec3(3,0, 0), // where is the camara
+            vec3(1,0, 0), // where is the camara
             vec3(0, 0, 0),                           //where it looks
             vec3(0, 0, -1)                            // head is up
         );

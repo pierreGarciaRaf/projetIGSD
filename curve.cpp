@@ -56,6 +56,30 @@ vector<curve> genBasicCurve(vector<teamHistory> th,vec3 offset){
     return curves;
 }
 
+vector<curve> squareModifier(const vector<curve> &basic, vec4 offset){
+    vector<curve> newCurves = vector<curve>(0);
+    for (int curveIndex = 0; curveIndex < basic.size(); curveIndex+=1){
+        
+        vector<vec4> newPoints = vector<vec4>(basic[curveIndex].xYZSCoords.size()*2);
+        vector<vec3> newColors = vector<vec3>(basic[curveIndex].xYZSCoords.size()*2);
+        vector<vec2> newUvs = vector<vec2>(basic[curveIndex].uVcoords.size()*2);
+        for (int pointIndex = 0; pointIndex < basic[curveIndex].xYZSCoords.size(); pointIndex +=1){
+            newPoints[2*pointIndex] = basic[curveIndex].xYZSCoords[pointIndex]-offset*0.5f;
+            newPoints[2*pointIndex+1] = basic[curveIndex].xYZSCoords[pointIndex]+offset*0.5f;
+
+            newColors[2*pointIndex] = basic[curveIndex].colors[pointIndex];
+            newColors[2*pointIndex+1] = basic[curveIndex].colors[pointIndex];
+
+            newUvs[2*pointIndex] = basic[curveIndex].uVcoords[pointIndex];
+            newUvs[2*pointIndex+1] = basic[curveIndex].uVcoords[pointIndex];
+        }
+        curve newCurve = curve{newPoints,newUvs,newColors};
+        newCurves.push_back(newCurve);
+    }
+    return newCurves;
+}
+
+
 vector<int> getVBOsSizes(const vector<curve> &curves){
     vector<int> VBOsizes = vector<int>(3);
     int totalNumberOfPoints = 0;
