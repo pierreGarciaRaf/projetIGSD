@@ -78,6 +78,13 @@ vector<curve> squareModifier(const vector<curve> &basic, vec4 offset){
     }
     return newCurves;
 }
+vec3 inline operator^(vec3 const &a, vec3 const  &b){
+    vec3 normal;
+    normal.x = a.y * b.z - a.z * b.z;
+    normal.y = a.z * b.x - a.x * b.z;
+    normal.z = a.x * b.y - a.y * b.x;
+    return normal;
+}
 
 
 vector<int> getVBOsSizes(const vector<curve> &curves){
