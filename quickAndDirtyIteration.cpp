@@ -173,8 +173,9 @@ int main()
     
     
     vector<curve> curves=genBasicCurve(teamData, vec3(0,-0.5f,-0.25f));
-    curves=squareModifier(curves,vec4(0,0,0.01,0));
-    
+    for (int curveIndex = 0; curveIndex < curves.size(); curveIndex +=1){
+        curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
+    }
 
     vector<int> VBOsizes = getVBOsSizes(curves);
     GLfloat g_vertex_buffer_data[VBOsizes[0]];
@@ -257,6 +258,7 @@ int main()
     float posY;
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glClearColor(1,1,1,1);
+    vec3 cameraPosition;
     do
     {
 
@@ -268,7 +270,7 @@ int main()
 
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 200.0f);
         glm::mat4 viewMatrix = glm::lookAt(
-            vec3(1,0, 0), // where is the camara
+            cameraPosition, // where is the camara
             vec3(0, 0, 0),                           //where it looks
             vec3(0, 0, -1)                            // head is up
         );
@@ -312,7 +314,18 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-
+        if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS){
+            cameraPosition.x += 0.001;
+        }
+        if(glfwGetKey(window, GLFW_KEY_S)==GLFW_PRESS){
+            cameraPosition.x -= 0.001;
+        }
+        if(glfwGetKey(window, GLFW_KEY_D)==GLFW_PRESS){
+            cameraPosition.y += 0.001;
+        }
+        if(glfwGetKey(window, GLFW_KEY_Q)==GLFW_PRESS){
+            cameraPosition.y -= 0.001;
+        }
 
         /*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         {
