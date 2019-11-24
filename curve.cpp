@@ -86,6 +86,21 @@ vec4 getMeanNANBNormalToCNormalized(const vec4 &A,const vec4 &B ,const vec3 C){
     return vec4(normalize(cross(vec3(normalize(normalize(A) - normalize(B))),C)),1);
 }
 
+void copy(const curve &basic, curve &toCopyOn, int indexBasic, int indexCopy, vec4 xyzOffset, vec3 colorOffset, vec2 UVoffset){
+    toCopyOn.xYZSCoords[indexCopy]+xyzOffset=basic[indexCopy];
+}
+
+curve subdivideSimple(const curve &basic, float power, int numberOfSubdivision){
+    vector<vec4> newPoints = vector<vec4>(basic.xYZSCoords.size() * glm::pow(2,numberOfSubdivision));
+    vector<vec3> newColors = vector<vec3>(basic.xYZSCoords.size() * glm::pow(2,numberOfSubdivision));
+    vector<vec2> newUvs = vector<vec2>(basic.uVcoords.size() * glm::pow(2,numberOfSubdivision));
+
+    for (int vertexIndex = 0; vertexIndex < basic.xYZSCoords.size(); vertexIndex+=1){
+        newPoints[vertexIndex]
+    }
+
+}
+
 
 curve skinModifier(const curve &basic, float size)
 {

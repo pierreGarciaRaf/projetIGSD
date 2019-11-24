@@ -1,6 +1,11 @@
 #ifndef CURVE
 #define CURVE
 
+struct vertex{
+    vec4 location;
+    vec3 colors;
+    vec2 UVcoords;
+};
 /**
  * Contains the general structure of points coordinates for the teams.
  * the three first coordinates are the usual ones, x, y & z.
