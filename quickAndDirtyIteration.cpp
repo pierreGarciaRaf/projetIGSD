@@ -172,10 +172,11 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genBasicCurve(teamData, vec3(0,-0.5f,-0.25f));
+    vector<curve> curves=genBasicCurve(teamData, vec3(0,-0.5f,-0.5f));
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex +=1){
         curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
     }
+    
 
     vector<int> VBOsizes = getVBOsSizes(curves);
     GLfloat g_vertex_buffer_data[VBOsizes[0]];
@@ -256,7 +257,7 @@ int main()
     double incrXpos = 0;
     double incrYpos = 0;
     float posY;
-    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE_BIT );
     glClearColor(1,1,1,1);
     vec3 cameraPosition;
     do
@@ -272,7 +273,7 @@ int main()
         glm::mat4 viewMatrix = glm::lookAt(
             cameraPosition, // where is the camara
             vec3(0, 0, 0),                           //where it looks
-            vec3(0, 0, -1)                            // head is up
+            vec3(0, 0, 1)                            // head is up
         );
         mat4 modelMatrix = glm::mat4(1.0);
         modelMatrix = translate(modelMatrix, vec3(0, 0, posY));

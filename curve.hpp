@@ -12,11 +12,7 @@ struct vertex{
  * the last one corresponds to the weight of this point.
  * UV & colors are pretty evident.
  **/
-struct curve{
-    vector<vec4> xYZSCoords;
-    vector<vec2> uVcoords;
-    vector<vec3> colors;
-};
+using curve = vector<vertex>;
 
 /**
  * from a teamhistory vector generates a basic curve (simple strings of points.)
@@ -29,8 +25,6 @@ vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset);
 vector<curve> squareModifier(const vector<curve> &basic, vec4 offset);
 
 curve skinModifier(const curve &basic, float size);
-
-
 
 vector<int> getVBOsSizes(const vector<curve> &curves);
 
