@@ -177,7 +177,7 @@ int main()
         //curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
         //curves[curveIndex]=cylinderModifier(curves[curveIndex],0.01,10);
     }
-    curves = squareCylinderModifier(curves,vec3(0,0,0.01));
+    curves = squareCylinderModifier(curves,vec3(0,0,0.01),4);
     
 
     vector<int> VBOsizes = getVBOsSizes(curves);
@@ -260,11 +260,24 @@ int main()
     double incrYpos = 0;
     float posY;
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    glClearColor(1,1,1,0);
+    glClearColor(1,1,1,1);
+    glEnable(GL_DEPTH_TEST);  
     vec3 cameraPosition = {1.5f,0,0};
+    double lastTime = glfwGetTime();
+    int nbFrames = 0;
+    double delta = 0;
     do
     {
+        double currentTime = glfwGetTime();
+        nbFrames++;
+        if ( currentTime- lastTime >= 1.0 ){ // If last prinf() was more than 1 sec ago
+             // printf and reset timer
+            delta = (currentTime -lastTime)/nbFrames;
 
+            printf("%f ms/frame\n", 1000.0/double(nbFrames));
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
         // clear before every draw 1
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -318,16 +331,16 @@ int main()
         glfwPollEvents();
 
         if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS){
-            cameraPosition.x -= 0.001;
+            cameraPosition.x -= 2*delta;
         }
         if(glfwGetKey(window, GLFW_KEY_S)==GLFW_PRESS){
-            cameraPosition.x += 0.001;
+            cameraPosition.x += 2*delta;
         }
         if(glfwGetKey(window, GLFW_KEY_D)==GLFW_PRESS){
-            cameraPosition.y += 0.001;
+            cameraPosition.y += 2*delta;
         }
         if(glfwGetKey(window, GLFW_KEY_Q)==GLFW_PRESS){
-            cameraPosition.y -= 0.001;
+            cameraPosition.y -= 2*delta;
         }
 
         /*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)

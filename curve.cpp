@@ -101,17 +101,7 @@ vector<curve> squareModifier(const vector<curve> &basic, vec3 offset)
     return newCurves;
 }
 
-vector<circleData> genStraightCircles(const curve &skeleton, vec3 offset){
-    vector<circleData> toReturn = vector<circleData>(skeleton.size());
-    for (int pointIndex =0; pointIndex < skeleton.size(); pointIndex +=1){
-        toReturn[pointIndex].Center = skeleton[pointIndex];
-        
-        toReturn[pointIndex].angleDegrees = 180;
-        toReturn[pointIndex].cos = offset;
-        toReturn[pointIndex].sin = vec3(1,0,0) * distance(vec3(0),offset);
-    }
-    return toReturn;
-}
+
 
 float angleIncrement(circleData const &c, int res){
     return M_PI * c.angleDegrees /(180 * res);
@@ -140,13 +130,26 @@ curve cylinder(circleData c1, circleData c2, int res){
     return toReturn;
 }
 
-vector<curve> squareCylinderModifier(const vector<curve> &basic,vec3 offset){
+vector<circleData> genStraightCircles(const curve &skeleton, vec3 offset){
+    vector<circleData> toReturn = vector<circleData>(skeleton.size());
+    for (int pointIndex =0; pointIndex < skeleton.size(); pointIndex +=1){
+        toReturn[pointIndex].Center = skeleton[pointIndex];
+        
+        toReturn[pointIndex].angleDegrees = 180;
+        toReturn[pointIndex].cos = offset;
+        toReturn[pointIndex].sin = vec3(1,0,0) * distance(vec3(0),offset);
+    }
+    return toReturn;
+}
+
+
+vector<curve> squareCylinderModifier(const vector<curve> &basic,vec3 offset, int res){
     vector<curve> toReturn = vector<curve>(0);
     vector<circleData> circleDataNow;
     for (int curveIndex = 0; curveIndex < basic.size(); curveIndex+= 1){
         circleDataNow = genStraightCircles(basic[curveIndex],offset);
         for (int pointIndex =0; pointIndex < basic[curveIndex].size()-1; pointIndex +=1){
-            toReturn.push_back(cylinder(circleDataNow[pointIndex],circleDataNow[pointIndex+1],8));
+            toReturn.push_back(cylinder(circleDataNow[pointIndex],circleDataNow[pointIndex+1],res));
         }
     }
     return toReturn;
@@ -167,17 +170,6 @@ vec3 getMeanNANBNormalToCNormalized(const vec3 &A,const vec3 &B ,const vec3 C){
     return 2.f * vec3(vec);
 }
 
-vector<circleData> genStraightCircles(const curve &skeleton, vec3 offset){
-    vector<circleData> toReturn = vector<circleData>(skeleton.size());
-    for (int pointIndex =0; pointIndex < skeleton.size(); pointIndex +=1){
-        toReturn[pointIndex].Center = skeleton[pointIndex];
-        
-        toReturn[pointIndex].angleDegrees = 180;
-        toReturn[pointIndex].cos = offset;
-        toReturn[pointIndex].sin = vec3(1,0,0) * distance(vec3(0),offset);
-    }
-    return toReturn;
-}
 curve skinModifier(const curve &basic, float size)
 {
     curve newCurve = curve(basic.size()*2);

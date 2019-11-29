@@ -26,7 +26,7 @@ vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset);
 
 vector<curve> squareModifier(const vector<curve> &basic, vec3 offset);
 
-vector<curve> squareCylinderModifier(const vector<curve> &basic, vec3 offset);  
+vector<curve> squareCylinderModifier(const vector<curve> &basic, vec3 offset,int res);
 
 curve skinModifier(const curve &basic, float size);
 
