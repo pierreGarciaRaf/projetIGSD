@@ -172,10 +172,12 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genBasicCurve(teamData, vec3(0,-0.5f,-0.5f));
+    vector<curve> curves=genBasicCurve(teamData, vec3(0,-1.f,-0.5f));
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex +=1){
-        curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
+        //curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
+        //curves[curveIndex]=cylinderModifier(curves[curveIndex],0.01,10);
     }
+    curves = squareCylinderModifier(curves,vec3(0,0,0.01));
     
 
     vector<int> VBOsizes = getVBOsSizes(curves);
@@ -257,9 +259,9 @@ int main()
     double incrXpos = 0;
     double incrYpos = 0;
     float posY;
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE_BIT );
-    glClearColor(1,1,1,1);
-    vec3 cameraPosition;
+    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glClearColor(1,1,1,0);
+    vec3 cameraPosition = {1.5f,0,0};
     do
     {
 
@@ -316,10 +318,10 @@ int main()
         glfwPollEvents();
 
         if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS){
-            cameraPosition.x += 0.001;
+            cameraPosition.x -= 0.001;
         }
         if(glfwGetKey(window, GLFW_KEY_S)==GLFW_PRESS){
-            cameraPosition.x -= 0.001;
+            cameraPosition.x += 0.001;
         }
         if(glfwGetKey(window, GLFW_KEY_D)==GLFW_PRESS){
             cameraPosition.y += 0.001;

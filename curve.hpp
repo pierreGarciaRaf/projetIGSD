@@ -1,17 +1,19 @@
 #ifndef CURVE
 #define CURVE
 
-struct vertex{
-    vec4 location;
-    vec3 colors;
-    vec2 UVcoords;
-};
 /**
  * Contains the general structure of points coordinates for the teams.
  * the three first coordinates are the usual ones, x, y & z.
  * the last one corresponds to the weight of this point.
  * UV & colors are pretty evident.
  **/
+struct vertex{
+    vec3 location;
+    vec3 colors;
+    vec2 UVcoords;
+};
+
+
 using curve = vector<vertex>;
 
 /**
@@ -22,9 +24,13 @@ using curve = vector<vertex>;
 vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset);
 
 
-vector<curve> squareModifier(const vector<curve> &basic, vec4 offset);
+vector<curve> squareModifier(const vector<curve> &basic, vec3 offset);
+
+vector<curve> squareCylinderModifier(const vector<curve> &basic, vec3 offset);  
 
 curve skinModifier(const curve &basic, float size);
+
+curve cylinderModifier(const curve &basic, float size, int edgeNumber);
 
 vector<int> getVBOsSizes(const vector<curve> &curves);
 
