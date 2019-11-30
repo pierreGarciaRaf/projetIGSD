@@ -32,6 +32,18 @@ vertex operator -(const vertex& x, const vertex& y) {
 }
 
 
+
+vec3 getMeanNANBNormalToCNormalized(const vec3 &A,const vec3 &B ,const vec3 C){
+    vec3 sumAB = normalize(B) + normalize(A);
+    vec3 vec= {0,sumAB.z,-sumAB.y};
+    float dist = distance(vec,vec3(0,0,0));
+    cout<<vec.x<<';'<<vec.y<<';'<<vec.z<<endl;
+    vec /= dist*dist;//on rajoute ça pour l'inverse proportinalité des vecteurs normés.
+    cout<<vec.x<<';'<<vec.y<<';'<<vec.z<<endl;
+    return 2.f * vec3(vec);
+}
+
+
 vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset)
 {
     float maxRank = 0;
@@ -142,6 +154,40 @@ vector<circleData> genStraightCircles(const curve &skeleton, vec3 offset){
     return toReturn;
 }
 
+vector<circleData> genSkinCircles(const curve &skeleton, float size){
+    vector<circleData> toReturn = vector<circleData>(skeleton.size());
+    vec3 normalVector = getMeanNANBNormalToCNormalized(
+    vec3(0.f),
+    skeleton[0].location - skeleton[1].location,
+    vec3(-1.f, 0.f, 0.f));
+    toReturn[0].Center = skeleton[0];
+    toReturn[0].cos = normalVector * size;
+    toReturn[0].sin = vec3(1,0,0) * size;
+    toReturn[0].angleDegrees = 180;
+
+    for (int pointIndex =1; pointIndex < skeleton.size()-1; pointIndex +=1){
+        normalVector = getMeanNANBNormalToCNormalized(
+            skeleton[pointIndex].location - skeleton[pointIndex-1].location,
+            skeleton[pointIndex+1].location - skeleton[pointIndex].location,
+            vec3(-1.f, 0.f, 0.f));
+        toReturn[pointIndex].Center = skeleton[pointIndex];
+        toReturn[pointIndex].cos = normalVector * size;
+        toReturn[pointIndex].sin = vec3(1,0,0) * size;
+        toReturn[pointIndex].angleDegrees = 180;
+    }
+    normalVector = getMeanNANBNormalToCNormalized(
+        vec3(0.f),
+        skeleton[skeleton.size()-1].location - skeleton[skeleton.size() - 2].location,
+        vec3(-1.f, 0.f, 0.f));
+
+    toReturn[skeleton.size()-1].Center = skeleton[skeleton.size() -1];
+    toReturn[skeleton.size()-1].cos = normalVector;
+    toReturn[skeleton.size()-1].sin = vec3(1,0,0);
+    toReturn[skeleton.size()-1].angleDegrees = 180;
+    return toReturn;
+
+}
+
 
 vector<curve> squareCylinderModifier(const vector<curve> &basic,vec3 offset, int res){
     vector<curve> toReturn = vector<curve>(0);
@@ -155,19 +201,22 @@ vector<curve> squareCylinderModifier(const vector<curve> &basic,vec3 offset, int
     return toReturn;
 }
 
+vector<curve> skinCylinderModifier(const vector<curve> &basic,float size, int res){
+    vector<curve> toReturn = vector<curve>(0);
+    vector<circleData> circleDataNow;
+    for (int curveIndex = 0; curveIndex < basic.size(); curveIndex+= 1){
+        circleDataNow = genSkinCircles(basic[curveIndex],size);
+        for (int pointIndex =0; pointIndex < basic[curveIndex].size()-1; pointIndex +=1){
+            toReturn.push_back(cylinder(circleDataNow[pointIndex],circleDataNow[pointIndex+1],res));
+        }
+    }
+    return toReturn;
+}
+
+
 
 curve subdivideSimple(const curve &basic, float power, int numberOfSubdivision){
 
-}
-
-vec3 getMeanNANBNormalToCNormalized(const vec3 &A,const vec3 &B ,const vec3 C){
-    vec3 sumAB = normalize(B) + normalize(A);
-    vec3 vec= {0,sumAB.z,-sumAB.y};
-    float dist = distance(vec,vec3(0,0,0));
-    cout<<vec.x<<';'<<vec.y<<';'<<vec.z<<endl;
-    vec /= dist*dist;//on rajoute ça pour l'inverse proportinalité des vecteurs normés.
-    cout<<vec.x<<';'<<vec.y<<';'<<vec.z<<endl;
-    return 2.f * vec3(vec);
 }
 
 curve skinModifier(const curve &basic, float size)
@@ -202,7 +251,7 @@ curve skinModifier(const curve &basic, float size)
 
     normalVector = getMeanNANBNormalToCNormalized(
         vec3(0.f),
-        basic[basic.size()].location - basic[basic.size() - 1].location,
+        basic[basic.size()-1].location - basic[basic.size() - 2].location,
         vec3(-1.f, 0.f, 0.f));
     newCurve[(basic.size() - 1)*2  ] = basic[basic.size() -1];
     newCurve[(basic.size() - 1)*2+1] = basic[basic.size() -1];

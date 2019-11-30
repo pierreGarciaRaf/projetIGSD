@@ -30,6 +30,8 @@ vector<curve> squareCylinderModifier(const vector<curve> &basic, vec3 offset,int
 
 curve skinModifier(const curve &basic, float size);
 
+vector<curve> skinCylinderModifier(const vector<curve> &basic,float size, int res);
+
 curve cylinderModifier(const curve &basic, float size, int edgeNumber);
 
 vector<int> getVBOsSizes(const vector<curve> &curves);

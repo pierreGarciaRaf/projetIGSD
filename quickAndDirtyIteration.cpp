@@ -177,7 +177,7 @@ int main()
         //curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
         //curves[curveIndex]=cylinderModifier(curves[curveIndex],0.01,10);
     }
-    curves = squareCylinderModifier(curves,vec3(0,0,0.01),4);
+    curves = skinCylinderModifier(curves,0.01,10);
     
 
     vector<int> VBOsizes = getVBOsSizes(curves);
