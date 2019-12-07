@@ -115,6 +115,7 @@ vector<curve> squareModifier(const vector<curve> &basic, vec3 offset)
 
 
 
+
 float angleIncrement(circleData const &c, int res){
     return M_PI * c.angleDegrees /(180 * res);
 }
@@ -156,13 +157,10 @@ vector<circleData> genStraightCircles(const curve &skeleton, vec3 offset){
 
 vector<circleData> genSkinCircles(const curve &skeleton, float size){
     vector<circleData> toReturn = vector<circleData>(skeleton.size());
-    vec3 normalVector = getMeanNANBNormalToCNormalized(
-    vec3(0.f),
-    skeleton[0].location - skeleton[1].location,
-    vec3(-1.f, 0.f, 0.f));
+    vec3 normalVector = vec3(0,0,-size/2);
     toReturn[0].Center = skeleton[0];
-    toReturn[0].cos = normalVector * size;
-    toReturn[0].sin = vec3(1,0,0) * size;
+    toReturn[0].cos = normalVector;
+    toReturn[0].sin = vec3(size/2,0,0);
     toReturn[0].angleDegrees = 180;
 
     for (int pointIndex =1; pointIndex < skeleton.size()-1; pointIndex +=1){
@@ -175,14 +173,11 @@ vector<circleData> genSkinCircles(const curve &skeleton, float size){
         toReturn[pointIndex].sin = vec3(1,0,0) * size;
         toReturn[pointIndex].angleDegrees = 180;
     }
-    normalVector = getMeanNANBNormalToCNormalized(
-        vec3(0.f),
-        skeleton[skeleton.size()-1].location - skeleton[skeleton.size() - 2].location,
-        vec3(-1.f, 0.f, 0.f));
+    normalVector = vec3(0,0,-size/2);
 
     toReturn[skeleton.size()-1].Center = skeleton[skeleton.size() -1];
     toReturn[skeleton.size()-1].cos = normalVector;
-    toReturn[skeleton.size()-1].sin = vec3(1,0,0);
+    toReturn[skeleton.size()-1].sin = vec3(size/2,0,0);
     toReturn[skeleton.size()-1].angleDegrees = 180;
     return toReturn;
 

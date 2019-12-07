@@ -38,6 +38,8 @@ using namespace glm;
 #include "fileReader.hpp"
 #include "curve.hpp"
 
+#include "cameraControl.hpp"
+
 bool wasPressingQ;
 bool wasPressingD;
 #define GLM_FORCE_RADIANS
@@ -285,11 +287,7 @@ int main()
         glUseProgram(programID);
 
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 200.0f);
-        glm::mat4 viewMatrix = glm::lookAt(
-            cameraPosition, // where is the camara
-            vec3(0, 0, 0),                           //where it looks
-            vec3(0, 0, 1)                            // head is up
-        );
+        glm::mat4 viewMatrix = navigationCamera(cameraPosition.x,cameraPosition.y,1);
         mat4 modelMatrix = glm::mat4(1.0);
         modelMatrix = translate(modelMatrix, vec3(0, 0, posY));
         glUniformMatrix4fv(uniform_proj, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
@@ -331,16 +329,16 @@ int main()
         glfwPollEvents();
 
         if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS){
-            cameraPosition.x -= 2*delta;
+            cameraPosition.x -= delta * 2;
         }
         if(glfwGetKey(window, GLFW_KEY_S)==GLFW_PRESS){
-            cameraPosition.x += 2*delta;
+            cameraPosition.x += delta * 2;
         }
         if(glfwGetKey(window, GLFW_KEY_D)==GLFW_PRESS){
-            cameraPosition.y += 2*delta;
+            cameraPosition.y += delta * 2;
         }
         if(glfwGetKey(window, GLFW_KEY_Q)==GLFW_PRESS){
-            cameraPosition.y -= 2*delta;
+            cameraPosition.y -= delta * 2;
         }
 
         /*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
