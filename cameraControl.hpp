@@ -1,4 +1,4 @@
 #ifndef CAMERA
 #define CAMERA
-mat4 navigationCamera(float angleZ, float angleY, float  distance);
+mat4 navigationCamera(vec3 camerAnglesDistance);
 #endif

@@ -264,7 +264,7 @@ int main()
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glClearColor(1,1,1,1);
     glEnable(GL_DEPTH_TEST);  
-    vec3 cameraPosition = {1.5f,0,0};
+    vec3 cameraAnglesDistance = {1,0,0};
     double lastTime = glfwGetTime();
     int nbFrames = 0;
     double delta = 0;
@@ -287,7 +287,7 @@ int main()
         glUseProgram(programID);
 
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 200.0f);
-        glm::mat4 viewMatrix = navigationCamera(cameraPosition.x,cameraPosition.y,1);
+        glm::mat4 viewMatrix = navigationCamera(cameraAnglesDistance);
         mat4 modelMatrix = glm::mat4(1.0);
         modelMatrix = translate(modelMatrix, vec3(0, 0, posY));
         glUniformMatrix4fv(uniform_proj, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
@@ -329,16 +329,22 @@ int main()
         glfwPollEvents();
 
         if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS){
-            cameraPosition.x -= delta * 2;
+            cameraAnglesDistance.x -= delta * 2;
         }
         if(glfwGetKey(window, GLFW_KEY_S)==GLFW_PRESS){
-            cameraPosition.x += delta * 2;
+            cameraAnglesDistance.x += delta * 2;
         }
         if(glfwGetKey(window, GLFW_KEY_D)==GLFW_PRESS){
-            cameraPosition.y += delta * 2;
+            cameraAnglesDistance.z += delta * 2;
         }
         if(glfwGetKey(window, GLFW_KEY_Q)==GLFW_PRESS){
-            cameraPosition.y -= delta * 2;
+            cameraAnglesDistance.z -= delta * 2;
+        }
+        if(glfwGetKey(window, GLFW_KEY_SPACE)==GLFW_PRESS){
+            cameraAnglesDistance.y += delta * 2;
+        }
+        if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)==GLFW_PRESS){
+            cameraAnglesDistance.y -= delta * 2;
         }
 
         /*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
