@@ -10,14 +10,22 @@
 
 using namespace glm;
 #include "cameraControl.hpp"
-mat4 navigationCamera(vec3 cameraAnglesDistance){
+mat4 navigationCamera(vec3 &cad){
+
+    if(cad.x < 0){
+        cad.x = 0;
+    }
     
-    float angleZ = cameraAnglesDistance.z;
-    float angleY = cameraAnglesDistance.y;
-    float distance = cameraAnglesDistance.x;
+    if (cad.y > M_PI_2){//M_PI_2 = M_PI/2
+        cad.y = M_PI_2;
+    }
+
+    if (cad.y < -M_PI_2){
+        cad.y = -M_PI_2;
+    }
     return lookAt(
-            vec3(distance*(cos(angleZ)),distance*sin(angleZ),1)* // where is the camara
-            vec3(distance*(cos(angleY)),1,distance*sin(angleY)), // where is the camara
+            cad.x * vec3((cos(cad.z)),sin(cad.z),1)*
+            vec3((cos(cad.y)),cos(cad.y),sin(cad.y)), // projection longitude latitude.
             vec3(0, 0, 0),                           //where it looks
             vec3(0, 0, 1)                            // head is up
         );

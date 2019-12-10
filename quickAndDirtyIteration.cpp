@@ -265,9 +265,12 @@ int main()
     glClearColor(1,1,1,1);
     glEnable(GL_DEPTH_TEST);  
     vec3 cameraAnglesDistance = {1,0,0};
+    vec3 lastCameraAnglesDistance = {1,0,0};
     double lastTime = glfwGetTime();
     int nbFrames = 0;
     double delta = 0;
+    int lastX=0;
+    int lastY=0;
     do
     {
         double currentTime = glfwGetTime();
@@ -346,25 +349,20 @@ int main()
         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)==GLFW_PRESS){
             cameraAnglesDistance.y -= delta * 2;
         }
-
-        /*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-        {
-            lastXpos = xpos;
-            lastYpos = ypos;
-            glfwGetCursorPos(window, &xpos, &ypos);
-            angleIncrement = -incrXpos / 200;
-            posY -= incrYpos / 500;
-            incrXpos = xpos - lastXpos;
-            incrYpos = ypos - lastYpos;
+        
+        glfwGetCursorPos(window, &xpos, &ypos);
+        
+        if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1)){
+            cameraAnglesDistance.z = lastCameraAnglesDistance.z + (xpos-lastX)/400;
+            cameraAnglesDistance.y = lastCameraAnglesDistance.y + (ypos-lastY)/350;
+            cout<<"click"<<endl;
+        }else{
+            lastX = xpos;
+            lastY = ypos;
+            lastCameraAnglesDistance = cameraAnglesDistance;
         }
-        else
-        {
-            glfwGetCursorPos(window, &lastXpos, &lastYpos);
-            angleIncrement = 0;
-            incrXpos = 0;
-            incrYpos = 0;
-        }
-        */
+        
+        
 
     } // Vérifie si on a appuyé sur la touche échap (ESC) ou si la fenêtre a été fermée
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
