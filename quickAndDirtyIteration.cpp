@@ -174,7 +174,7 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genBasicCurves(teamData, vec3(0,-1.f,-0.5f));
+    vector<curve> curves=genNonCrossingCurves(teamData, vec3(0,-1.f,-0.5f),0.008f);
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex +=1){
         //curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
         //curves[curveIndex]=cylinderModifier(curves[curveIndex],0.01,10);

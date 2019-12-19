@@ -118,26 +118,32 @@ vector<curve> genNonCrossingCurves(vector<teamHistory> th, vec3 offset, float ba
         curve nowCurve = curve(0);
         vertex nowVertex;
         vec3 teamColor = {rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX)};
+        nowVertex.colors = teamColor;
+        nowVertex.UVcoords = vec2(1,1);
+        float height1 = 0;
+        float height2= 0;
         for (int timeIndex = 0; timeIndex < numberOfGames; timeIndex += 1)
         {
+            height1 = ((19-th[teamIndex].ranks[timeIndex]) / maxRank +
+                                                 th[teamIndex].points[timeIndex] / maxPoint) /
+                                                    2.0f;
             
+            height2 = timeIndex+1 < numberOfGames ? ((19-th[teamIndex].ranks[timeIndex+1]) / maxRank +
+                                                 th[teamIndex].points[timeIndex+1] / maxPoint) /
+                                                    2.0f : height1;
             nowVertex.location = vec3(offset.x,
                                      offset.y + float(2*timeIndex) / numberOfGames,
-                                     offset.z + ((19-th[teamIndex].ranks[timeIndex]) / maxRank +
-                                                 th[teamIndex].points[timeIndex] / maxPoint) /
-                                                    2.0f);
-            nowVertex.colors = teamColor;
-            nowVertex.UVcoords = vec2(1,1);
+                                     offset.z + height1);
             nowCurve.push_back(nowVertex);
 
-            nowVertex.location = vec3(offset.x,
-                                     offset.y + float(2*timeIndex+1) / numberOfGames,
-                                     offset.z + ((19-th[teamIndex].ranks[timeIndex]) / maxRank +
-                                                 th[teamIndex].points[timeIndex] / maxPoint) /
-                                                    2.0f);
-            nowVertex.colors = teamColor;
-            nowVertex.UVcoords = vec2(1,1);
+            nowVertex.location.y += 1.0f/numberOfGames;
             nowCurve.push_back(nowVertex);
+
+            nowVertex.location.y += 0.5f/numberOfGames;
+            nowVertex.location.z = offset.z + (height1+height2)/2.0;
+            nowVertex.location.x = offset.x + (height1 < height2 ? 1 : -1)*backOffset;
+            nowCurve.push_back(nowVertex);
+            nowVertex.location.x = offset.x;
         }
         curves[teamIndex] = nowCurve;
     }

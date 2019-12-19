@@ -23,6 +23,8 @@ using curve = vector<vertex>;
  **/
 vector<curve> genBasicCurves(vector<teamHistory> th, vec3 offset);
 
+vector<curve> genNonCrossingCurves(vector<teamHistory> th, vec3 offset, float backOffset);
+
 
 vector<curve> squareModifier(const vector<curve> &basic, vec3 offset);
 
@@ -34,8 +36,8 @@ vector<curve> skinCylinderModifier(const vector<curve> &basic,float size, int re
 
 curve cylinderModifier(const curve &basic, float size, int edgeNumber);
 
-vector<int> getVBOsSizes(const vector<curve> &curves);
 
+vector<int> getVBOsSizes(const vector<curve> &curves);
 
 /**
  * converts the vector to a VAO :

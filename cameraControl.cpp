@@ -10,18 +10,19 @@
 
 using namespace glm;
 #include "cameraControl.hpp"
+#define PI_OVER_2_LIMIT  1.570794 //reduced for limits problem/
 mat4 navigationCamera(vec3 &cad){
 
     if(cad.x < 0){
         cad.x = 0;
     }
     
-    if (cad.y > M_PI_2){//M_PI_2 = M_PI/2
-        cad.y = M_PI_2;
+    if (cad.y > PI_OVER_2_LIMIT){//M_PI_2 = M_PI/2
+        cad.y = PI_OVER_2_LIMIT;
     }
 
-    if (cad.y < -M_PI_2){
-        cad.y = -M_PI_2;
+    if (cad.y < -PI_OVER_2_LIMIT){
+        cad.y = -PI_OVER_2_LIMIT;
     }
     return lookAt(
             cad.x * vec3((cos(cad.z)),sin(cad.z),1)*
