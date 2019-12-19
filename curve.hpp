@@ -30,7 +30,7 @@ vector<curve> squareModifier(const vector<curve> &basic, vec3 offset);
 
 vector<curve> squareCylinderModifier(const vector<curve> &basic, vec3 offset,int res);
 
-curve skinModifier(const curve &basic, float size);
+vector<curve> skinModifier(const vector<curve> &basic, float size);
 
 vector<curve> skinCylinderModifier(const vector<curve> &basic,float size, int res);
 

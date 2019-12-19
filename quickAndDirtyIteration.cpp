@@ -175,11 +175,8 @@ int main()
     
     
     vector<curve> curves=genNonCrossingCurves(teamData, vec3(0,-1.f,-0.5f),0.008f);
-    for (int curveIndex = 0; curveIndex < curves.size(); curveIndex +=1){
-        //curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
-        //curves[curveIndex]=cylinderModifier(curves[curveIndex],0.01,10);
-    }
-    curves = skinCylinderModifier(curves,0.01,5);
+    
+    curves = skinCylinderModifier(curves,0.01,4);
     
 
     vector<int> VBOsizes = getVBOsSizes(curves);
