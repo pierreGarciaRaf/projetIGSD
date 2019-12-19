@@ -21,7 +21,7 @@ using curve = vector<vertex>;
  * @param th teamhistory vector initialized with fileReader functions.
  * @param offset where is the origin of the curve.
  **/
-vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset);
+vector<curve> genBasicCurves(vector<teamHistory> th, vec3 offset);
 
 
 vector<curve> squareModifier(const vector<curve> &basic, vec3 offset);

@@ -174,12 +174,12 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genBasicCurve(teamData, vec3(0,-1.f,-0.5f));
+    vector<curve> curves=genBasicCurves(teamData, vec3(0,-1.f,-0.5f));
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex +=1){
         //curves[curveIndex]=skinModifier(curves[curveIndex],0.01);
         //curves[curveIndex]=cylinderModifier(curves[curveIndex],0.01,10);
     }
-    curves = skinCylinderModifier(curves,0.01,10);
+    curves = skinCylinderModifier(curves,0.01,5);
     
 
     vector<int> VBOsizes = getVBOsSizes(curves);
@@ -331,6 +331,11 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
 
+
+        /**
+         * Camera movements
+         * 
+         **/
         if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS){
             cameraAnglesDistance.x -= delta * 2;
         }
@@ -355,7 +360,6 @@ int main()
         if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1)){
             cameraAnglesDistance.z = lastCameraAnglesDistance.z + (xpos-lastX)/400;
             cameraAnglesDistance.y = lastCameraAnglesDistance.y + (ypos-lastY)/350;
-            cout<<"click"<<endl;
         }else{
             lastX = xpos;
             lastY = ypos;

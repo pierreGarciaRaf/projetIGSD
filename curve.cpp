@@ -44,7 +44,57 @@ vec3 getMeanNANBNormalToCNormalized(const vec3 &A,const vec3 &B ,const vec3 C){
 }
 
 
-vector<curve> genBasicCurve(vector<teamHistory> th, vec3 offset)
+vector<curve> genBasicCurves(vector<teamHistory> th, vec3 offset)
+{
+    float maxRank = 0;
+    float maxPoint = 0;
+    for (int i = 0; i < th.size(); i += 1)
+    {
+        if (maxRank < th[i].maxRank)
+        {
+            maxRank = th[i].maxRank;
+        }
+        if (maxPoint < th[i].maxPoint)
+        {
+            maxPoint = th[i].maxPoint;
+        }
+    }
+    int N = th.size();
+    int numberOfGames = th[0].points.size();
+    vector<curve> curves = vector<curve>(N);
+
+    for (int teamIndex = 0; teamIndex < N; teamIndex++)
+    {
+        curve nowCurve = curve(0);
+        vertex nowVertex;
+        vec3 teamColor = {rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX)};
+        for (int timeIndex = 0; timeIndex < numberOfGames; timeIndex += 1)
+        {
+            
+            nowVertex.location = vec3(offset.x,
+                                     offset.y + float(2*timeIndex) / numberOfGames,
+                                     offset.z + ((19-th[teamIndex].ranks[timeIndex]) / maxRank +
+                                                 th[teamIndex].points[timeIndex] / maxPoint) /
+                                                    2.0f);
+            nowVertex.colors = teamColor;
+            nowVertex.UVcoords = vec2(1,1);
+            nowCurve.push_back(nowVertex);
+
+            nowVertex.location = vec3(offset.x,
+                                     offset.y + float(2*timeIndex+1) / numberOfGames,
+                                     offset.z + ((19-th[teamIndex].ranks[timeIndex]) / maxRank +
+                                                 th[teamIndex].points[timeIndex] / maxPoint) /
+                                                    2.0f);
+            nowVertex.colors = teamColor;
+            nowVertex.UVcoords = vec2(1,1);
+            nowCurve.push_back(nowVertex);
+        }
+        curves[teamIndex] = nowCurve;
+    }
+    return curves;
+}
+
+vector<curve> genNonCrossingCurves(vector<teamHistory> th, vec3 offset, float backOffset)
 {
     float maxRank = 0;
     float maxPoint = 0;
@@ -112,6 +162,7 @@ vector<curve> squareModifier(const vector<curve> &basic, vec3 offset)
     }
     return newCurves;
 }
+
 
 
 
