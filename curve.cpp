@@ -37,9 +37,9 @@ vec3 getMeanNANBNormalToCNormalized(const vec3 &A,const vec3 &B ,const vec3 C){
     vec3 sumAB = normalize(cross(B,C)) + normalize(cross(A,C));
     vec3 vec= sumAB;
     float dist = distance(vec,vec3(0,0,0));
-    cout<<vec.x<<';'<<vec.y<<';'<<vec.z<<endl;
+    //cout<<vec.x<<';'<<vec.y<<';'<<vec.z<<endl;
     vec /= dist*dist;//on rajoute ça pour l'inverse proportinalité des vecteurs normés.
-    cout<<vec.x<<';'<<vec.y<<';'<<vec.z<<endl;
+    //cout<<vec.x<<';'<<vec.y<<';'<<vec.z<<endl;
     return 2.f * vec3(vec);
 }
 
@@ -272,9 +272,69 @@ vector<curve> skinCylinderModifier(const vector<curve> &basic,float size, int re
 }
 
 
+vertex getCurveVertex(const curve Curve, int index){
+    if (index < 0 && index < Curve.size()){
+        return Curve[index];
+    }else{
+        return {vec3(0.),vec3(0.),vec2(0.)};
+    }
+}
 
-curve subdivideSimple(const curve &basic, float power, int numberOfSubdivision){
+curve subdivideSimple(const curve &basic, int numberOfSubdivision){
+    curve newCurve = curve(0);
+    vertex vertexNow;
+    for (int vertexIndex = 0; vertexIndex < basic.size()-1; vertexIndex += 1){
+        for (float i =0; i < 1; i+= 1.0/numberOfSubdivision){
+            vertexNow = (i * basic[vertexIndex+1] + (1-i) * basic[vertexIndex]);
+            newCurve.push_back(vertexNow);
+        }
+    }
+    return newCurve;
+}
 
+curve subdivideSmooth(const curve &basic, int numberOfSubdivision){//on utilise les courbes de beziers.
+    curve newCurve = curve(0);
+    vertex vertexNow;
+    vertex ctrVertex1;
+    vertex ctrVertex2;
+    float counterI = 1;
+    for (int vertexIndex = 0; vertexIndex < basic.size()-1; vertexIndex += 1){
+
+        for (float i =0; i < 1; i+= 1.0/numberOfSubdivision){
+            counterI = 1-i;
+
+            ctrVertex1 = basic[vertexIndex+1];
+            ctrVertex1.location -= vec3(0,0,0.05);
+            ctrVertex1.UVcoords -= vec2(0,0.05);
+
+            ctrVertex1 = basic[vertexIndex];
+            ctrVertex2.location += vec3(0,0,0.05);
+            ctrVertex2.UVcoords += vec2(0,0.05);
+
+            vertexNow = i*i*i * basic[vertexIndex+1] +
+                        3 * i *i * counterI * ctrVertex1 +
+                        3 * i * counterI * counterI * ctrVertex2 + 
+                        counterI * counterI * counterI * basic[vertexIndex];
+            newCurve.push_back(vertexNow);
+        }
+    }
+    return newCurve;
+}
+
+vector<curve> subdivideSimpleModifier(const vector<curve> &basic, int numberOfSubdivisons){
+    vector<curve> toReturn = vector<curve>(0);
+    for (int i = 0; i < basic.size(); i += 1){
+        toReturn.push_back(subdivideSimple(basic[i],numberOfSubdivisons));
+    }
+    return toReturn;
+}
+
+vector<curve> subdivideSmoothModifier(const vector<curve> &basic, int numberOfSubdivisons){
+    vector<curve> toReturn = vector<curve>(0);
+    for (int i = 0; i < basic.size(); i += 1){
+        toReturn.push_back(subdivideSimple(basic[i],numberOfSubdivisons));
+    }
+    return toReturn;
 }
 
 curve skinModifierOne(const curve &basic, float size)
@@ -337,8 +397,8 @@ void pushHalfCylinder(vertex orthCircleA1, vertex orthCircleA2, vertex orthCircl
         
         toAddOn.push_back(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2);
         toAddOn[toAddOn.size()-1].location += vec3(offsetPosA);
-        cout<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.x<<','<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.y<<
-        ','<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.z<<endl;
+        //cout<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.x<<','<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.y<<
+        //','<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.z<<endl;
         toAddOn.push_back(glm::sin(angle) * orthCircleB1 + glm::cos(angle) * orthCircleB2);
         toAddOn[toAddOn.size()-1].location += vec3(offsetPosB);
         angle += angleIncrement;

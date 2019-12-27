@@ -174,8 +174,8 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genNonCrossingCurves(teamData, vec3(0,-1.f,-0.5f),0.008f);
-    
+    vector<curve> curves=genNonCrossingCurves(teamData, vec3(0,-1.f,-0.5f),0.011f);
+    curves = subdivideSimpleModifier(curves,3);
     curves = skinCylinderModifier(curves,0.01,4);
     
 

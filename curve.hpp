@@ -26,6 +26,8 @@ vector<curve> genBasicCurves(vector<teamHistory> th, vec3 offset);
 vector<curve> genNonCrossingCurves(vector<teamHistory> th, vec3 offset, float backOffset);
 
 
+vector<curve> subdivideSimpleModifier(const vector<curve> &basic, int numberOfSubdivisons);
+
 vector<curve> squareModifier(const vector<curve> &basic, vec3 offset);
 
 vector<curve> squareCylinderModifier(const vector<curve> &basic, vec3 offset,int res);
