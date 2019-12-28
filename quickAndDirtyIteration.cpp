@@ -174,9 +174,9 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genNonCrossingCurves(teamData, vec3(0,-1.f,-0.5f),0.011f);
-    curves = subdivideSimpleModifier(curves,3);
-    curves = skinCylinderModifier(curves,0.01,4);
+    vector<curve> curves=genBasicCurves(teamData, vec3(0,-1.f,-0.5f));
+    curves = subdivideSmoothModifier(curves,5);
+    curves = skinModifier(curves,0.01);
     
 
     vector<int> VBOsizes = getVBOsSizes(curves);
@@ -258,7 +258,7 @@ int main()
     double incrXpos = 0;
     double incrYpos = 0;
     float posY;
-    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glClearColor(1,1,1,1);
     glEnable(GL_DEPTH_TEST);  
     vec3 cameraAnglesDistance = {1,0,0};
@@ -316,7 +316,7 @@ int main()
         glEnableVertexAttribArray(1);
         
         int firstVertex = 0;
-        for (int triangleStripIndex = 0; triangleStripIndex < numberOfPointPerTeam.size(); triangleStripIndex +=1){
+        for (int triangleStripIndex = 0; triangleStripIndex < 1; triangleStripIndex +=1){
             glDrawArrays(GL_TRIANGLE_STRIP, firstVertex, numberOfPointPerTeam[triangleStripIndex]); 
             firstVertex += numberOfPointPerTeam[triangleStripIndex];
         }

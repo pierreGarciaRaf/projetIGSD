@@ -28,6 +28,8 @@ vector<curve> genNonCrossingCurves(vector<teamHistory> th, vec3 offset, float ba
 
 vector<curve> subdivideSimpleModifier(const vector<curve> &basic, int numberOfSubdivisons);
 
+vector<curve> subdivideSmoothModifier(const vector<curve> &basic, int numberOfSubdivisons);
+
 vector<curve> squareModifier(const vector<curve> &basic, vec3 offset);
 
 vector<curve> squareCylinderModifier(const vector<curve> &basic, vec3 offset,int res);

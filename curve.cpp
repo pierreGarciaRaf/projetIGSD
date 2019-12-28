@@ -295,28 +295,42 @@ curve subdivideSimple(const curve &basic, int numberOfSubdivision){
 curve subdivideSmooth(const curve &basic, int numberOfSubdivision){//on utilise les courbes de beziers.
     curve newCurve = curve(0);
     vertex vertexNow;
+    
     vertex ctrVertex1;
     vertex ctrVertex2;
     float counterI = 1;
+    float offset = 0.01;
     for (int vertexIndex = 0; vertexIndex < basic.size()-1; vertexIndex += 1){
+        ctrVertex1 = basic[vertexIndex+1];
+        ctrVertex2 = basic[vertexIndex];
+        ctrVertex1.location += -vec3(0,offset,0);
+        ctrVertex1.UVcoords += -vec2(0,offset);
+
+        ctrVertex2.location += vec3(0,offset,0);
+        ctrVertex2.UVcoords += vec2(0,offset);
 
         for (float i =0; i < 1; i+= 1.0/numberOfSubdivision){
             counterI = 1-i;
 
-            ctrVertex1 = basic[vertexIndex+1];
-            ctrVertex1.location -= vec3(0,0,0.05);
-            ctrVertex1.UVcoords -= vec2(0,0.05);
-
-            ctrVertex1 = basic[vertexIndex];
-            ctrVertex2.location += vec3(0,0,0.05);
-            ctrVertex2.UVcoords += vec2(0,0.05);
 
             vertexNow = i*i*i * basic[vertexIndex+1] +
                         3 * i *i * counterI * ctrVertex1 +
                         3 * i * counterI * counterI * ctrVertex2 + 
                         counterI * counterI * counterI * basic[vertexIndex];
+            
+            cout<<i<<","<<counterI<<","<<i*i*i+
+                        3 * i *i * counterI+
+                        3 * i * counterI * counterI+ 
+                        counterI * counterI * counterI<<
+                        "\n{x,y,z} = {"
+                        <<vertexNow.location.x<<','
+                        <<vertexNow.location.y<<','
+                        <<vertexNow.location.z<<'}'
+                        <<endl;
+            
             newCurve.push_back(vertexNow);
         }
+        cout<<endl;
     }
     return newCurve;
 }
@@ -332,7 +346,7 @@ vector<curve> subdivideSimpleModifier(const vector<curve> &basic, int numberOfSu
 vector<curve> subdivideSmoothModifier(const vector<curve> &basic, int numberOfSubdivisons){
     vector<curve> toReturn = vector<curve>(0);
     for (int i = 0; i < basic.size(); i += 1){
-        toReturn.push_back(subdivideSimple(basic[i],numberOfSubdivisons));
+        toReturn.push_back(subdivideSmooth(basic[i],numberOfSubdivisons));
     }
     return toReturn;
 }
