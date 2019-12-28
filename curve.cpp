@@ -301,15 +301,10 @@ curve subdivideSmooth(const curve &basic, int numberOfSubdivision){//on utilise 
     float counterI = 1;
     float offset = 0.01;
     for (int vertexIndex = 0; vertexIndex < basic.size()-1; vertexIndex += 1){
-        
-        ctrVertex1.UVcoords = vec2(0.f,basic[vertexIndex].UVcoords.y);
-        ctrVertex1.location.y *= 0.5;
-        ctrVertex1.UVcoords.y *= 0.5;
-        cout <<ctrVertex1.location.y<<endl;
-        
-        ctrVertex2.UVcoords.y = ctrVertex1.UVcoords.y;
-        ctrVertex2.location.y *= 0.5;
-        cout <<ctrVertex2.location.y<<endl;
+        if(basic[vertexIndex+1].location.z == basic[vertexIndex].location.z ){
+                newCurve.push_back(basic[vertexIndex]);
+                continue;
+        }
         ctrVertex1 = basic[vertexIndex+1];
         ctrVertex2 = basic[vertexIndex];
 
