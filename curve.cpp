@@ -191,24 +191,23 @@ vector<curve> genWithTangentCurves(vector<teamHistory> th, vec3 offset, float ba
                                                  th[teamIndex].points[timeIndex+1] / maxPoint) /
                                                     2.0f : height1;
             nowVertex.location = vec3(offset.x,
-                                     offset.y + float(2*timeIndex) / numberOfGames,
+                                     offset.y + float(3*timeIndex) / numberOfGames,
                                      offset.z + height1);
-            nowVertex.tangentCoord = nowVertex.location + vec3(0.f,0.,0);
+            nowVertex.tangentCoord = nowVertex.location + vec3(0.f,0.01,0);
             nowCurve.push_back(nowVertex);
 
             nowVertex.location.y += 1.0f/numberOfGames;
-            nowVertex.tangentCoord = nowVertex.location + vec3(0.f,0.,0);
-            
+            nowVertex.tangentCoord = nowVertex.location + vec3(0,0.01,0);// tangente de changement d'état.
             nowCurve.push_back(nowVertex);
-            
-            //vertex de changement d'état (courbé)
-            nowVertex.location.y += 0.5f/numberOfGames;
+
+            nowVertex.location.y += 1.0f/numberOfGames;
             nowVertex.location.z = offset.z + (height1+height2)/2.0;
             nowVertex.location.x = offset.x + (height1 < height2 ? 1 : -1)*backOffset;
-            nowVertex.tangentCoord = (nowVertex.location);
-            
+            nowVertex.tangentCoord = nowVertex.location;
+            nowVertex.tangentCoord.x = (height1 < height2 ? 0.5 : -0.5)*backOffset;
+            nowVertex.tangentCoord.y += 0.01f;
+            nowVertex.tangentCoord.z += (height2 - height1);
             nowCurve.push_back(nowVertex);
-            nowVertex.location.x = offset.x;
         }
         curves[teamIndex] = nowCurve;
     }
@@ -419,7 +418,7 @@ curve subdivideSmoothTangents(const curve &basic, int numberOfSubdivision){//on 
         ctrVertex1 = basic[vertexIndex+1];
         ctrVertex1.location = 2.f * ctrVertex1.location - ctrVertex1.tangentCoord;
         ctrVertex2 = basic[vertexIndex];
-        ctrVertex2.location = ctrVertex1.tangentCoord; 
+        ctrVertex2.location = ctrVertex2.tangentCoord; 
 
         
         for (float i =0; i < 1; i+= 1.0/numberOfSubdivision){
