@@ -150,6 +150,70 @@ vector<curve> genNonCrossingCurves(vector<teamHistory> th, vec3 offset, float ba
     return curves;
 }
 
+
+vector<curve> genWithTangentCurves(vector<teamHistory> th, vec3 offset, float backOffset)
+{
+    float maxRank = 0;
+    float maxPoint = 0;
+    for (int i = 0; i < th.size(); i += 1)
+    {
+        if (maxRank < th[i].maxRank)
+        {
+            maxRank = th[i].maxRank;
+        }
+        if (maxPoint < th[i].maxPoint)
+        {
+            maxPoint = th[i].maxPoint;
+        }
+    }
+    int N = th.size();
+    int numberOfGames = th[0].points.size();
+    vector<curve> curves = vector<curve>(N);
+
+    for (int teamIndex = 0; teamIndex < N; teamIndex++)
+    {
+        curve nowCurve = curve(0);
+        vertex nowVertex;
+        vec3 teamColor = {rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX)};
+        nowVertex.colors = teamColor;
+        nowVertex.UVcoords = vec2(1,1);
+        nowVertex.tangentCoord = nowVertex.location;
+        float height1 = 0;
+        float height2= 0;
+        for (int timeIndex = 0; timeIndex < numberOfGames; timeIndex += 1)
+        {
+            //vertex d'état stable (droit)
+            height1 = ((19-th[teamIndex].ranks[timeIndex]) / maxRank +
+                                                 th[teamIndex].points[timeIndex] / maxPoint) /
+                                                    2.0f;
+            
+            height2 = timeIndex+1 < numberOfGames ? ((19-th[teamIndex].ranks[timeIndex+1]) / maxRank +
+                                                 th[teamIndex].points[timeIndex+1] / maxPoint) /
+                                                    2.0f : height1;
+            nowVertex.location = vec3(offset.x,
+                                     offset.y + float(2*timeIndex) / numberOfGames,
+                                     offset.z + height1);
+            nowVertex.tangentCoord = nowVertex.location + vec3(0.f,0.,0);
+            nowCurve.push_back(nowVertex);
+
+            nowVertex.location.y += 1.0f/numberOfGames;
+            nowVertex.tangentCoord = nowVertex.location + vec3(0.f,0.,0);
+            
+            nowCurve.push_back(nowVertex);
+            
+            //vertex de changement d'état (courbé)
+            nowVertex.location.y += 0.5f/numberOfGames;
+            nowVertex.location.z = offset.z + (height1+height2)/2.0;
+            nowVertex.location.x = offset.x + (height1 < height2 ? 1 : -1)*backOffset;
+            nowVertex.tangentCoord = (nowVertex.location);
+            
+            nowCurve.push_back(nowVertex);
+            nowVertex.location.x = offset.x;
+        }
+        curves[teamIndex] = nowCurve;
+    }
+    return curves;
+}
 vector<curve> squareModifier(const vector<curve> &basic, vec3 offset)
 {
     vector<curve> newCurves = vector<curve>(0);
@@ -292,7 +356,7 @@ curve subdivideSimple(const curve &basic, int numberOfSubdivision){
     return newCurve;
 }
 
-curve subdivideSmooth(const curve &basic, int numberOfSubdivision){//on utilise les courbes de beziers.
+curve subdivideSmooth(const curve &basic, int numberOfSubdivision){//on utilise les courbes de beziers, problème avec les courbe ne se reroisant pas.
     curve newCurve = curve(0);
     vertex vertexNow;
     
@@ -338,18 +402,73 @@ curve subdivideSmooth(const curve &basic, int numberOfSubdivision){//on utilise 
     return newCurve;
 }
 
-vector<curve> subdivideSimpleModifier(const vector<curve> &basic, int numberOfSubdivisons){
+
+curve subdivideSmoothTangents(const curve &basic, int numberOfSubdivision){//on utilise les courbes de beziers, problème avec les courbe ne se reroisant pas.
+    curve newCurve = curve(0);
+    vertex vertexNow;
+    
+    vertex ctrVertex1;
+    vertex ctrVertex2;
+    float counterI = 1;
+    float offset = 0.01;
+    for (int vertexIndex = 0; vertexIndex < basic.size()-1; vertexIndex += 1){
+        if(basic[vertexIndex+1].location.z == basic[vertexIndex].location.z ){
+                //newCurve.push_back(basic[vertexIndex]);
+                //continue;
+        }
+        ctrVertex1 = basic[vertexIndex+1];
+        ctrVertex1.location = 2.f * ctrVertex1.location - ctrVertex1.tangentCoord;
+        ctrVertex2 = basic[vertexIndex];
+        ctrVertex2.location = ctrVertex1.tangentCoord; 
+
+        
+        for (float i =0; i < 1; i+= 1.0/numberOfSubdivision){
+            counterI = 1-i;
+
+
+            vertexNow = i*i*i * basic[vertexIndex+1] +
+                        3 * i *i * counterI * ctrVertex1 +
+                        3 * i * counterI * counterI * ctrVertex2 + 
+                        counterI * counterI * counterI * basic[vertexIndex];
+            
+            cout<<i<<","<<counterI<<","<<i*i*i+
+                        3 * i *i * counterI+
+                        3 * i * counterI * counterI+ 
+                        counterI * counterI * counterI<<
+                        "\n{x,y,z} = {"
+                        <<vertexNow.location.x<<','
+                        <<vertexNow.location.y<<','
+                        <<vertexNow.location.z<<'}'
+                        <<endl;
+            
+            newCurve.push_back(vertexNow);
+        }
+        cout<<endl;
+    }
+    return newCurve;
+}
+
+
+vector<curve> subdivideSimpleModifier(const vector<curve> &basic, int numberOfSubdivisions){
     vector<curve> toReturn = vector<curve>(0);
     for (int i = 0; i < basic.size(); i += 1){
-        toReturn.push_back(subdivideSimple(basic[i],numberOfSubdivisons));
+        toReturn.push_back(subdivideSimple(basic[i],numberOfSubdivisions));
     }
     return toReturn;
 }
 
-vector<curve> subdivideSmoothModifier(const vector<curve> &basic, int numberOfSubdivisons){
+vector<curve> subdivideSmoothModifier(const vector<curve> &basic, int numberOfSubdivisions){
     vector<curve> toReturn = vector<curve>(0);
     for (int i = 0; i < basic.size(); i += 1){
-        toReturn.push_back(subdivideSmooth(basic[i],numberOfSubdivisons));
+        toReturn.push_back(subdivideSmooth(basic[i],numberOfSubdivisions));
+    }
+    return toReturn;
+}
+
+vector<curve> subdivideTangentsModifier(const vector<curve> &basic, int numberOfSubdivisions){
+    vector<curve> toReturn = vector<curve>(0);
+    for (int i = 0; i < basic.size(); i += 1){
+        toReturn.push_back(subdivideSmoothTangents(basic[i],numberOfSubdivisions));
     }
     return toReturn;
 }

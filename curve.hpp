@@ -11,6 +11,7 @@ struct vertex{
     vec3 location;
     vec3 colors;
     vec2 UVcoords;
+    vec3 tangentCoord;
 };
 
 
@@ -25,10 +26,13 @@ vector<curve> genBasicCurves(vector<teamHistory> th, vec3 offset);
 
 vector<curve> genNonCrossingCurves(vector<teamHistory> th, vec3 offset, float backOffset);
 
+vector<curve> genWithTangentCurves(vector<teamHistory> th, vec3 offset, float backOffset);
 
 vector<curve> subdivideSimpleModifier(const vector<curve> &basic, int numberOfSubdivisons);
 
 vector<curve> subdivideSmoothModifier(const vector<curve> &basic, int numberOfSubdivisons);
+
+vector<curve> subdivideTangentsModifier(const vector<curve> &basic, int numberOfSubdivisions);
 
 vector<curve> squareModifier(const vector<curve> &basic, vec3 offset);
 

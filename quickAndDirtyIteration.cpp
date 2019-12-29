@@ -174,9 +174,9 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genBasicCurves(teamData, vec3(0,-1.f,-0.5f));
-    curves = subdivideSmoothModifier(curves,5);
-    curves = skinCylinderModifier(curves,0.01,4);
+    vector<curve> curves=genWithTangentCurves(teamData, vec3(0,-1.f,-0.5f),0.011);
+    curves = subdivideTangentsModifier(curves,5);
+    curves = skinCylinderModifier(curves,0.001,4);
     
 
     vector<int> VBOsizes = getVBOsSizes(curves);
