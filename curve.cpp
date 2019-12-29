@@ -204,9 +204,9 @@ vector<curve> genWithTangentCurves(vector<teamHistory> th, vec3 offset, float ba
             nowVertex.location.z = offset.z + (height1+height2)/2.0;
             nowVertex.location.x = offset.x + (height1 < height2 ? 1 : -1)*backOffset;
             nowVertex.tangentCoord = nowVertex.location;
-            nowVertex.tangentCoord.x = (height1 < height2 ? 0.5 : -0.5)*backOffset;
+            nowVertex.tangentCoord.x = offset.x + (height1 < height2 ? 0.5 : -0.5)*backOffset;
             nowVertex.tangentCoord.y += 0.01f;
-            nowVertex.tangentCoord.z += (height2 - height1);
+            nowVertex.tangentCoord.z += 0.5f * (height2 - height1);
             nowCurve.push_back(nowVertex);
         }
         curves[teamIndex] = nowCurve;
@@ -410,18 +410,17 @@ curve subdivideSmoothTangents(const curve &basic, int numberOfSubdivision){//on 
     vertex ctrVertex2;
     float counterI = 1;
     float offset = 0.01;
+    float incrI;
     for (int vertexIndex = 0; vertexIndex < basic.size()-1; vertexIndex += 1){
-        if(basic[vertexIndex+1].location.z == basic[vertexIndex].location.z ){
-                //newCurve.push_back(basic[vertexIndex]);
-                //continue;
-        }
+        incrI = 75*length(basic[vertexIndex+1].location - basic[vertexIndex+1].tangentCoord - basic[vertexIndex].location + basic[vertexIndex].tangentCoord);
+        
         ctrVertex1 = basic[vertexIndex+1];
         ctrVertex1.location = 2.f * ctrVertex1.location - ctrVertex1.tangentCoord;
         ctrVertex2 = basic[vertexIndex];
         ctrVertex2.location = ctrVertex2.tangentCoord; 
 
         
-        for (float i =0; i < 1; i+= 1.0/numberOfSubdivision){
+        for (float i =0; i < 1; i+= 1.0/(numberOfSubdivision*incrI)){
             counterI = 1-i;
 
 
@@ -430,7 +429,7 @@ curve subdivideSmoothTangents(const curve &basic, int numberOfSubdivision){//on 
                         3 * i * counterI * counterI * ctrVertex2 + 
                         counterI * counterI * counterI * basic[vertexIndex];
             
-            cout<<i<<","<<counterI<<","<<i*i*i+
+            std::cout<<i<<","<<counterI<<","<<i*i*i+
                         3 * i *i * counterI+
                         3 * i * counterI * counterI+ 
                         counterI * counterI * counterI<<
@@ -442,7 +441,7 @@ curve subdivideSmoothTangents(const curve &basic, int numberOfSubdivision){//on 
             
             newCurve.push_back(vertexNow);
         }
-        cout<<endl;
+        std::cout<<endl;
     }
     return newCurve;
 }

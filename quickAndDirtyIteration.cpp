@@ -258,7 +258,7 @@ int main()
     double incrXpos = 0;
     double incrYpos = 0;
     float posY;
-    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glClearColor(1,1,1,1);
     glEnable(GL_DEPTH_TEST);  
     vec3 cameraAnglesDistance = {1,0,0};
