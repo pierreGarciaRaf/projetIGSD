@@ -73,3 +73,68 @@ vector<teamHistory> readData(string fileName)
     } while (extractedString.length() > 0);
     return toReturn;
 }
+
+void swapInts(vector<int> &list, int idx1, int idx2){
+    int temp = list[idx2];
+    list[idx2] = list[idx1];
+    list[idx1] = temp;
+}
+
+void quickSort(int debutDuTriInd,int finDuTriInd,
+                vector<int> &toSort, vector<int> &teamIndexSorted){//adaptation de TD d'info121a réalisé pendant les vacances d'été.
+    if (debutDuTriInd == finDuTriInd){
+        return;
+    }
+    int mid = (debutDuTriInd + finDuTriInd)/2;
+    for (int i = debutDuTriInd; i < mid; i ++ ){
+        if (toSort[i]> toSort[mid]){
+            swapInts(toSort, i, mid+i);
+            swapInts(teamIndexSorted,i,mid+i);
+        }
+    }
+    for(int i = mid; i < finDuTriInd; i++){
+        if (toSort[i]> toSort[mid]){
+            swapInts(toSort, i, mid-i);
+            swapInts(teamIndexSorted,i,mid-i);
+        }
+    }
+    quickSort(debutDuTriInd,mid,toSort,teamIndexSorted);
+    quickSort(mid,finDuTriInd,toSort,teamIndexSorted);
+}
+
+
+/**
+ * classe les équipes selon la formule pour la hauteur à un temps donné.
+ */
+void sortAtTime(vector<teamHistory> &th, int time,int maxRank, int maxPoint){
+    
+    vector<int> scores = vector<int>(th.size());
+    th[time].ranks;
+    //ici on garde l'information de hauteur en entiers dans le vecteur scores. 
+    // en fait on multiplie l'integralité de la formule de base par les deux maximums.
+    for (int teamIdx = 0; teamIdx < th.size(); teamIdx += 1){
+            scores[teamIdx] =   19 - th[teamIdx].ranks[time] *maxPoint +
+                                th[teamIdx].points[time] * maxRank;
+    }
+    //maintenant on trie les scores tout en changeant les rangs.
+
+}
+
+void fillPositons(vector<teamHistory> &th){
+    int maxRank = 0;
+    int maxPoint = 0;
+    for (int i = 0; i < th.size(); i += 1)//on fixe les maximums.
+    {
+        if (maxRank < th[i].maxRank)
+        {
+            maxRank = th[i].maxRank;
+        }
+        if (maxPoint < th[i].maxPoint)
+        {
+            maxPoint = th[i].maxPoint;
+        }
+    }
+    for (int time = 0; time < th[0].ranks.size(); time+= 1){
+        sortAtTime(th,time,maxrank,maxPoint);
+    }
+}

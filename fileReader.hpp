@@ -10,6 +10,7 @@ struct teamHistory
     vector<float> points;
     float maxPoint;
     float maxRank;
+    int position;
     string name;
 };
 
