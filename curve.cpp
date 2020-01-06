@@ -199,17 +199,23 @@ vector<curve> genWithTangentCurves(vector<teamHistory> th, vec3 offset, float ba
             nowVertex.location.y += 1.0f/numberOfGames;
             nowVertex.tangentCoord = nowVertex.location + vec3(0,0.01,0);// tangente de changement d'état.
             nowCurve.push_back(nowVertex);
-
+            if(th[teamIndex].position[timeIndex] == th[teamIndex].position[(timeIndex+1)%(numberOfGames-1)]){
+                continue;
+            }
             nowVertex.location.y += 1.0f/numberOfGames;
-            nowVertex.location.z = offset.z + (height1+height2)/2.0;
-            nowVertex.location.x = offset.x + (height1 < height2 ? 1 : -1)*backOffset;
+
+            nowVertex.location.z = offset.z + (height1+height2)*0.5;
+            nowVertex.location.x = offset.x + backOffset*(th[teamIndex].position[timeIndex+1]-th[teamIndex].position[timeIndex]);
             nowVertex.tangentCoord = nowVertex.location;
-            nowVertex.tangentCoord.x = offset.x + (height1 < height2 ? 0.5 : -0.5)*backOffset;
+            
+
+            
             nowVertex.tangentCoord.y += 0.01f;
             nowVertex.tangentCoord.z += 0.5f * (height2 - height1);
             nowCurve.push_back(nowVertex);
         }
         curves[teamIndex] = nowCurve;
+
     }
     return curves;
 }
@@ -263,6 +269,31 @@ curve cylinder(circleData c1, circleData c2, int res){
     return toReturn;
 }
 
+void cylinderAdd(curve &toModify, circleData c1, circleData c2, int res){
+    curve toReturn = curve(res * 2 + 6);
+    toReturn[0] = c1.Center;
+    toReturn[1] = c2.Center;
+    float angleC1 = 0;
+    float angleC2 = 0;
+    float angleIncrementC1 = angleIncrement(c1,res);
+    float angleIncrementC2 = angleIncrement(c2, res);
+    for (int segmentIndex = 1; segmentIndex <= res+1; segmentIndex += 1){
+        toReturn[segmentIndex*2] = c1.Center;
+        toReturn[segmentIndex*2].location += cos(angleC1) * c1.cos;
+        toReturn[segmentIndex*2].location += sin(angleC1) * c1.sin;
+        toReturn[segmentIndex*2+1] = c2.Center;
+        toReturn[segmentIndex*2+1].location += cos(angleC2) * c2.cos;
+        toReturn[segmentIndex*2+1].location += sin(angleC2) * c2.sin;
+        angleC1 += angleIncrementC1;
+        angleC2 += angleIncrementC2;
+    }
+    toReturn[toReturn.size()-2] = c1.Center;
+    toReturn[toReturn.size()-1] = c2.Center;
+    for(int i = 0; i < toReturn.size(); i += 1){
+        toModify.push_back(toReturn[i]);
+    }
+}
+
 vector<circleData> genStraightCircles(const curve &skeleton, vec3 offset){
     vector<circleData> toReturn = vector<circleData>(skeleton.size());
     for (int pointIndex =0; pointIndex < skeleton.size(); pointIndex +=1){
@@ -277,7 +308,7 @@ vector<circleData> genStraightCircles(const curve &skeleton, vec3 offset){
 
 vector<circleData> genSkinCircles(const curve &skeleton, float size){
     vector<circleData> toReturn = vector<circleData>(skeleton.size());
-    vec3 normalCosVector = vec3(0,0,-size/2);
+    vec3 normalCosVector = vec3(0,0,size/2);
     vec3 normalSinVector = vec3(size/2,0,0);
     toReturn[0].Center = skeleton[0];
     toReturn[0].cos = normalCosVector;
@@ -298,7 +329,7 @@ vector<circleData> genSkinCircles(const curve &skeleton, float size){
         toReturn[pointIndex].sin = normalSinVector * size;
         toReturn[pointIndex].angleDegrees = 180;
     }
-    normalCosVector = vec3(0,0,-size/2);
+    normalCosVector = vec3(0,0,size/2);
     normalSinVector = vec3(size/2,0,0);
 
     toReturn[skeleton.size()-1].Center = skeleton[skeleton.size() -1];
@@ -324,12 +355,16 @@ vector<curve> squareCylinderModifier(const vector<curve> &basic,vec3 offset, int
 
 vector<curve> skinCylinderModifier(const vector<curve> &basic,float size, int res){
     vector<curve> toReturn = vector<curve>(0);
+    curve nowCurve = curve(0);
+    curve nowCylinder = curve(0);
     vector<circleData> circleDataNow;
     for (int curveIndex = 0; curveIndex < basic.size(); curveIndex+= 1){
         circleDataNow = genSkinCircles(basic[curveIndex],size);
+        nowCurve = cylinder(circleDataNow[0],circleDataNow[1],res);
         for (int pointIndex =0; pointIndex < basic[curveIndex].size()-1; pointIndex +=1){
-            toReturn.push_back(cylinder(circleDataNow[pointIndex],circleDataNow[pointIndex+1],res));
+            cylinderAdd(nowCurve,circleDataNow[pointIndex],circleDataNow[pointIndex+1],res);
         }
+        toReturn.push_back(nowCurve);
     }
     return toReturn;
 }
@@ -384,7 +419,7 @@ curve subdivideSmooth(const curve &basic, int numberOfSubdivision){//on utilise 
                         3 * i * counterI * counterI * ctrVertex2 + 
                         counterI * counterI * counterI * basic[vertexIndex];
             
-            cout<<i<<","<<counterI<<","<<i*i*i+
+            /*cout<<i<<","<<counterI<<","<<i*i*i+
                         3 * i *i * counterI+
                         3 * i * counterI * counterI+ 
                         counterI * counterI * counterI<<
@@ -392,11 +427,10 @@ curve subdivideSmooth(const curve &basic, int numberOfSubdivision){//on utilise 
                         <<vertexNow.location.x<<','
                         <<vertexNow.location.y<<','
                         <<vertexNow.location.z<<'}'
-                        <<endl;
+                        <<endl;*/
             
             newCurve.push_back(vertexNow);
         }
-        cout<<endl;
     }
     return newCurve;
 }
@@ -412,7 +446,8 @@ curve subdivideSmoothTangents(const curve &basic, int numberOfSubdivision){//on 
     float offset = 0.01;
     float incrI;
     for (int vertexIndex = 0; vertexIndex < basic.size()-1; vertexIndex += 1){
-        incrI = 75*length(basic[vertexIndex+1].location - basic[vertexIndex+1].tangentCoord - basic[vertexIndex].location + basic[vertexIndex].tangentCoord);
+        incrI = ((basic[vertexIndex+1].location.z != basic[vertexIndex].location.z) ? 1 : 0);
+        
         
         ctrVertex1 = basic[vertexIndex+1];
         ctrVertex1.location = 2.f * ctrVertex1.location - ctrVertex1.tangentCoord;
@@ -429,19 +464,8 @@ curve subdivideSmoothTangents(const curve &basic, int numberOfSubdivision){//on 
                         3 * i * counterI * counterI * ctrVertex2 + 
                         counterI * counterI * counterI * basic[vertexIndex];
             
-            std::cout<<i<<","<<counterI<<","<<i*i*i+
-                        3 * i *i * counterI+
-                        3 * i * counterI * counterI+ 
-                        counterI * counterI * counterI<<
-                        "\n{x,y,z} = {"
-                        <<vertexNow.location.x<<','
-                        <<vertexNow.location.y<<','
-                        <<vertexNow.location.z<<'}'
-                        <<endl;
-            
             newCurve.push_back(vertexNow);
         }
-        std::cout<<endl;
     }
     return newCurve;
 }
@@ -548,8 +572,6 @@ void pushHalfCylinder(const curve &basic, curve &toPushOn, float size, int index
         basic[index].location - basic[index+1].location,
         basic[index+1].location - basic[index+2].location,
         vec3(-1.f, 0.f, 0.f));
-    cout<<"--------------------------"<<basic[index].location.y<<endl;
-    cout<<"--------------------------"<<basic[index].location.z<<endl;
 
     vertex lastPerpendicular;
     lastPerpendicular.location = vec3{1,0,0} *size;

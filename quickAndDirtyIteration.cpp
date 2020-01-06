@@ -174,8 +174,8 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genWithTangentCurves(teamData, vec3(0,-1.f,-0.5f),0.01);
-    curves = subdivideTangentsModifier(curves,5);
+    vector<curve> curves=genWithTangentCurves(teamData, vec3(0,-1.5f,-0.5f),0.005);
+    curves = subdivideTangentsModifier(curves,3);
     curves = skinCylinderModifier(curves,0.01,4);
     
 
@@ -258,7 +258,6 @@ int main()
     double incrXpos = 0;
     double incrYpos = 0;
     float posY;
-    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glClearColor(1,1,1,1);
     glEnable(GL_DEPTH_TEST);  
     vec3 cameraAnglesDistance = {1,0,0};
@@ -350,6 +349,15 @@ int main()
         }
         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)==GLFW_PRESS){
             cameraAnglesDistance.y -= delta * 2;
+        }
+        if(glfwGetKey(window,GLFW_KEY_Z) == GLFW_PRESS){
+            cout<<"Wireframe"<<endl;
+            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        }
+
+        if(glfwGetKey(window,GLFW_KEY_X) == GLFW_PRESS){
+            cout<<"Solid"<<endl;
+            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
         }
         
         glfwGetCursorPos(window, &xpos, &ypos);

@@ -8,9 +8,9 @@ struct teamHistory
 {
     vector<float> ranks;
     vector<float> points;
+    vector<int> position;
     float maxPoint;
     float maxRank;
-    int position;
     string name;
 };
 
