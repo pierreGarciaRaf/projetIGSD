@@ -16,10 +16,10 @@ uniform mat4 projectionMatrix;
 uniform int teamToMoveIndex;
 
 void main(){
-  if (team_index != 3){
-    gl_Position = projectionMatrix * viewMatrix * modelForTeamToMove * modelMatrix * vec4(vertexPosition_modelspace, 1.0);
+  if (team_index == teamToMoveIndex){
+    gl_Position = projectionMatrix * viewMatrix * modelForTeamToMove  * vec4(vertexPosition_modelspace, 1.0);
   }else{
-    gl_Position = projectionMatrix * viewMatrix *                      modelMatrix * vec4(vertexPosition_modelspace, 1.0);
+    gl_Position = projectionMatrix * viewMatrix * modelMatrix         * vec4(vertexPosition_modelspace, 1.0);
   }
   
   colort = vertexColor_modelspace;

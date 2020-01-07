@@ -636,13 +636,15 @@ vector<int> genVBOs(vector<curve> curves, GLfloat XYZcoords[], GLfloat UVcoords[
 
     unsigned int buffer3Index = 0;
     unsigned int buffer2Index = 0;
+    unsigned int buffer1Index = 0;
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex += 1)
     {
         
         for (int point = 0; point < curves[curveIndex].size(); point += 1)
         {
-            teamIndex[point] = curveIndex;
-            
+            teamIndex[buffer1Index] = curveIndex;
+            buffer1Index+=1;
+
             XYZcoords[buffer3Index] = curves[curveIndex][point].location.x;
             colors[buffer3Index] = curves[curveIndex][point].colors.r;
             buffer3Index += 1;
