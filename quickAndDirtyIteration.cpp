@@ -156,6 +156,14 @@ GLuint LoadShaders(const char *vertex_file_path, const char *fragment_file_path)
     return ProgramID;
 }
 
+int between(int x, int a, int b){
+    if (x < a){
+        return a;
+    }if (x > b){
+        return b;
+    }
+    return x;
+}
 
 void setup()
 {
@@ -383,15 +391,15 @@ int main()
             cout<<"Solid"<<endl;
             glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
         }
-        if(glfwGetKey(window,GLFW_KEY_UP) == GLFW_PRESS){
+        if(glfwGetKey(window,GLFW_KEY_DOWN) == GLFW_PRESS){
             wasPressingUp = true;
         }else{
             if (wasPressingUp){
                 wasPressingUp = false;
-                teamMoved += 1;
+                teamMoved = between(teamMoved + 1, -1,20);
             }
         }
-        if(glfwGetKey(window,GLFW_KEY_DOWN) == GLFW_PRESS){
+        if(glfwGetKey(window,GLFW_KEY_UP) == GLFW_PRESS){
             wasPressingDown = true;
             
             
@@ -399,7 +407,7 @@ int main()
         {
             if (wasPressingDown){
                 wasPressingDown = false;
-                teamMoved -= 1;
+                teamMoved = between(teamMoved - 1, -1,20);
             }
         }
         
