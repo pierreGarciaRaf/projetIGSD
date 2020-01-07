@@ -286,7 +286,7 @@ int main()
     double delta = 0;
     int lastX=0;
     int lastY=0;
-    int teamMoved = 0;
+    int teamMoved = 20;
     mat3 sunMatrix;
     do
     {
@@ -311,7 +311,7 @@ int main()
         mat4 modelMatrix = glm::mat4(1.0);
         modelMatrix = translate(modelMatrix, vec3(0, -1, -0.5));
         mat4 modelForTeamToMove = glm::mat4(1.0);
-        modelForTeamToMove = translate(modelMatrix, vec3(0.05,0,0));
+        modelForTeamToMove = translate(modelMatrix, vec3(0.1,0,0));
         glUniformMatrix4fv(uniform_proj, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(modelMatrix));
