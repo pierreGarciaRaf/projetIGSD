@@ -9,10 +9,11 @@ smooth out vec3 colort;
 
 // Params
 uniform mat4 modelMatrix;
+uniform mat4 modelForTeamToMove;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
 void main(){
-  gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertexPosition_modelspace, 1.0);
+  gl_Position = projectionMatrix * viewMatrix * modelForTeamToMove * vec4(vertexPosition_modelspace, 1.0);
   colort      = vertexColor_modelspace;
 }

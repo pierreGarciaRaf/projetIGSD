@@ -50,7 +50,7 @@ string dataPath;
 // dans une variable globale CAR
 // C'est dans la fonction loadShaders que nous pouvos recupere les bonnes valeurs de pointeur (une fois le shader compile/linke)
 // c'est dans le main que nous pouvons donne les bonnes valeurs "au bout du pointeur" pour que les shaders les recoivent
-GLint uniform_proj, uniform_view, uniform_model;
+GLint uniform_proj, uniform_view, uniform_model, uniform_modelForTeamToMove;
 
 GLuint LoadShaders(const char *vertex_file_path, const char *fragment_file_path)
 {
@@ -132,6 +132,7 @@ GLuint LoadShaders(const char *vertex_file_path, const char *fragment_file_path)
     uniform_proj = glGetUniformLocation(ProgramID, "projectionMatrix");
     uniform_view = glGetUniformLocation(ProgramID, "viewMatrix");
     uniform_model = glGetUniformLocation(ProgramID, "modelMatrix");
+    uniform_modelForTeamToMove = glGetUniformLocation(ProgramID, "modelForTeamToMove");
 
     // Check the program
     glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
@@ -203,7 +204,7 @@ int main()
 
     // Ouvre une fenêtre et crée son contexte OpenGl
     GLFWwindow *window; // (Dans le code source qui accompagne, cette variable est globale)
-    window = glfwCreateWindow(1024, 768, "Pierre T  BO (merci Elie, c'est tres gentil).", NULL, NULL);
+    window = glfwCreateWindow(1024, 768, "Champion's League ranking", NULL, NULL);
     if (window == NULL)
     {
         fprintf(stderr,
@@ -267,6 +268,7 @@ int main()
     double delta = 0;
     int lastX=0;
     int lastY=0;
+    mat3 sunMatrix;
     do
     {
         double currentTime = glfwGetTime();
@@ -284,15 +286,17 @@ int main()
 
         // Use our shader
         glUseProgram(programID);
-
+        
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 200.0f);
         glm::mat4 viewMatrix = navigationCamera(cameraAnglesDistance);
         mat4 modelMatrix = glm::mat4(1.0);
         modelMatrix = translate(modelMatrix, vec3(0, 0, posY));
+        mat4 modelForTeamToMove = mat4(1.0);
+        modelForTeamToMove = translate(modelForTeamToMove, vec3(0, 0, posY));
         glUniformMatrix4fv(uniform_proj, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-
+        glUniformMatrix4fv(uniform_modelForTeamToMove, 1, GL_FALSE, glm::value_ptr(modelForTeamToMove));
         // 1rst attribute buffer : vertices
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(
