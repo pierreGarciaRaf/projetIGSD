@@ -50,7 +50,7 @@ string dataPath;
 // dans une variable globale CAR
 // C'est dans la fonction loadShaders que nous pouvos recupere les bonnes valeurs de pointeur (une fois le shader compile/linke)
 // c'est dans le main que nous pouvons donne les bonnes valeurs "au bout du pointeur" pour que les shaders les recoivent
-GLint uniform_proj, uniform_view, uniform_model, uniform_modelForTeamToMove;
+GLint uniform_proj, uniform_view, uniform_model, uniform_offsetForTeamToMove, uniform_teamToMoveIndex;
 
 GLuint LoadShaders(const char *vertex_file_path, const char *fragment_file_path)
 {
@@ -132,7 +132,8 @@ GLuint LoadShaders(const char *vertex_file_path, const char *fragment_file_path)
     uniform_proj = glGetUniformLocation(ProgramID, "projectionMatrix");
     uniform_view = glGetUniformLocation(ProgramID, "viewMatrix");
     uniform_model = glGetUniformLocation(ProgramID, "modelMatrix");
-    uniform_modelForTeamToMove = glGetUniformLocation(ProgramID, "modelForTeamToMove");
+    uniform_offsetForTeamToMove = glGetUniformLocation(ProgramID, "offsetForTeamToMove");
+    uniform_teamToMoveIndex = glGetUniformLocation(ProgramID, "teamToMoveIndex");
 
     // Check the program
     glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
@@ -175,7 +176,7 @@ int main()
     const int numberOfGames = teamData[0].ranks.size();
     
     
-    vector<curve> curves=genWithTangentCurves(teamData, vec3(0,-1.5f,-0.5f),0.005);
+    vector<curve> curves=genWithTangentCurves(teamData, vec3(0.f),0.005);
     curves = subdivideTangentsModifier(curves,3);
     curves = skinCylinderModifier(curves,0.01,4);
     
@@ -184,9 +185,11 @@ int main()
     GLfloat g_vertex_buffer_data[VBOsizes[0]];
     GLfloat g_vertex_color_data[VBOsizes[1]];
     GLfloat g_vertex_UV_data[VBOsizes[2]];
+    GLint g_vertex_team_idx[VBOsizes[3]];
     vector<int> numberOfPointPerTeam  = genVBOs(curves, g_vertex_buffer_data,
                                     g_vertex_UV_data,
-                                    g_vertex_color_data);
+                                    g_vertex_color_data,
+                                    g_vertex_team_idx);
     
     
     
@@ -235,13 +238,18 @@ int main()
     // The following commands will talk about our 'vertexbuffer' buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
     // Only allocqte memory. Do not send yet our vertices to OpenGL.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data) + sizeof(g_vertex_color_data), 0, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data) + sizeof(g_vertex_color_data) + sizeof(g_vertex_team_idx), 0, GL_STATIC_DRAW);
 
     // send vertices in the first part of the buffer
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(g_vertex_buffer_data), g_vertex_buffer_data);
 
     // send vertices in the second part of the buffer
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), sizeof(g_vertex_color_data), g_vertex_color_data);
+
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data) + sizeof(g_vertex_color_data),
+                    sizeof(g_vertex_team_idx), g_vertex_team_idx);
+
+    
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -258,7 +266,6 @@ int main()
     double lastYpos = 0;
     double incrXpos = 0;
     double incrYpos = 0;
-    float posY;
     glClearColor(1,1,1,1);
     glEnable(GL_DEPTH_TEST);  
     vec3 cameraAnglesDistance = {1,0,0};
@@ -290,13 +297,15 @@ int main()
         glm::mat4 projectionMatrix = glm::perspective(45.0f, 1024.0f / 768.0f, 0.1f, 200.0f);
         glm::mat4 viewMatrix = navigationCamera(cameraAnglesDistance);
         mat4 modelMatrix = glm::mat4(1.0);
-        modelMatrix = translate(modelMatrix, vec3(0, 0, posY));
-        mat4 modelForTeamToMove = mat4(1.0);
-        modelForTeamToMove = translate(modelForTeamToMove, vec3(0, 0, posY));
+        modelMatrix = translate(modelMatrix, vec3(0, -1, -0.5));
+        mat4 offsetForTeamToMove = mat4(1.0);
+        offsetForTeamToMove = translate(offsetForTeamToMove, vec3(3, 0, 0));
+        int teamMoved = 2;
         glUniformMatrix4fv(uniform_proj, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         glUniformMatrix4fv(uniform_view, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(uniform_model, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-        glUniformMatrix4fv(uniform_modelForTeamToMove, 1, GL_FALSE, glm::value_ptr(modelForTeamToMove));
+        glUniformMatrix4fv(uniform_offsetForTeamToMove, 1, GL_FALSE, glm::value_ptr(offsetForTeamToMove));
+        glUniform1i(uniform_teamToMoveIndex,teamMoved);
         // 1rst attribute buffer : vertices
         glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
         glVertexAttribPointer(
@@ -317,7 +326,15 @@ int main()
             0,
             (void *)sizeof(g_vertex_buffer_data));
         glEnableVertexAttribArray(1);
-        
+        glVertexAttribPointer( // same thing for the indexes
+            2,
+            1,
+            GL_INT,
+            GL_FALSE,
+            0,
+            (void *)(sizeof(g_vertex_color_data) + sizeof(g_vertex_buffer_data)));
+        glEnableVertexAttribArray(2);
+
         int firstVertex = 0;
         for (int triangleStripIndex = 0; triangleStripIndex < numberOfPointPerTeam.size(); triangleStripIndex +=1){
             glDrawArrays(GL_TRIANGLE_STRIP, firstVertex, numberOfPointPerTeam[triangleStripIndex]); 

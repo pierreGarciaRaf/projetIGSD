@@ -281,14 +281,18 @@ void cylinderAdd(curve &toModify, circleData c1, circleData c2, int res){
         toReturn[segmentIndex*2] = c1.Center;
         toReturn[segmentIndex*2].location += cos(angleC1) * c1.cos;
         toReturn[segmentIndex*2].location += sin(angleC1) * c1.sin;
+        toReturn[segmentIndex*2].colors *= (sin(angleC1)+cos(angleC1)+1)/3;
         toReturn[segmentIndex*2+1] = c2.Center;
         toReturn[segmentIndex*2+1].location += cos(angleC2) * c2.cos;
         toReturn[segmentIndex*2+1].location += sin(angleC2) * c2.sin;
+        toReturn[segmentIndex*2+1].colors *= (sin(angleC2)+cos(angleC2)+1)/3;
         angleC1 += angleIncrementC1;
         angleC2 += angleIncrementC2;
     }
     toReturn[toReturn.size()-2] = c1.Center;
+    toReturn[toReturn.size()-2].colors = vec3(0);
     toReturn[toReturn.size()-1] = c2.Center;
+    toReturn[toReturn.size()-1].colors = vec3(0);
     for(int i = 0; i < toReturn.size(); i += 1){
         toModify.push_back(toReturn[i]);
     }
@@ -548,6 +552,7 @@ vector<curve> skinModifier(const vector<curve> &basic, float size){
 
 void pushHalfCylinder(vertex orthCircleA1, vertex orthCircleA2, vertex orthCircleB1,
  vertex orthCircleB2,vec3 offsetPosA, vec3 offsetPosB, int N,float maxAngleDegrees, curve &toAddOn){
+    cout<<"pushHalfCylinder"<<endl;
     float angle = 0;
     float angleIncrement = M_PI* maxAngleDegrees/(180.f * N);
     vertex vertexNow;
@@ -558,6 +563,7 @@ void pushHalfCylinder(vertex orthCircleA1, vertex orthCircleA2, vertex orthCircl
         //cout<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.x<<','<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.y<<
         //','<<(glm::sin(angle) * orthCircleA1 + glm::cos(angle) * orthCircleA2).location.z<<endl;
         toAddOn.push_back(glm::sin(angle) * orthCircleB1 + glm::cos(angle) * orthCircleB2);
+        toAddOn[toAddOn.size()-1].colors *= glm::sin(angle);
         toAddOn[toAddOn.size()-1].location += vec3(offsetPosB);
         angle += angleIncrement;
     }
@@ -607,7 +613,7 @@ curve cylinderModifier(const curve &basic, float size, int edgeNumber){
 
 vector<int> getVBOsSizes(const vector<curve> &curves)
 {
-    vector<int> VBOsizes = vector<int>(3);
+    vector<int> VBOsizes = vector<int>(4);
     int totalNumberOfPoints = 0;
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex += 1)
     {
@@ -616,9 +622,10 @@ vector<int> getVBOsSizes(const vector<curve> &curves)
     VBOsizes[0] = totalNumberOfPoints * 3;
     VBOsizes[1] = totalNumberOfPoints * 3;
     VBOsizes[2] = totalNumberOfPoints * 2;
+    VBOsizes[3] = totalNumberOfPoints;
     return VBOsizes;
 }
-vector<int> genVBOs(vector<curve> curves, GLfloat XYZcoords[], GLfloat UVcoords[], GLfloat colors[])
+vector<int> genVBOs(vector<curve> curves, GLfloat XYZcoords[], GLfloat UVcoords[], GLfloat colors[], GLint teamIndex[])
 {
     vector<int> curveSize = vector<int>(curves.size());
     int totalNumberOfPoints = 0;
@@ -631,8 +638,11 @@ vector<int> genVBOs(vector<curve> curves, GLfloat XYZcoords[], GLfloat UVcoords[
     unsigned int buffer2Index = 0;
     for (int curveIndex = 0; curveIndex < curves.size(); curveIndex += 1)
     {
+        
         for (int point = 0; point < curves[curveIndex].size(); point += 1)
         {
+            teamIndex[point] = curveIndex;
+            
             XYZcoords[buffer3Index] = curves[curveIndex][point].location.x;
             colors[buffer3Index] = curves[curveIndex][point].colors.r;
             buffer3Index += 1;

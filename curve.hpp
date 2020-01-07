@@ -61,5 +61,5 @@ vector<int> getVBOsSizes(const vector<curve> &curves);
  *              the VBO for vertex colors it needs to create.
  * 
  **/
-vector<int> genVBOs(vector<curve> curves,  GLfloat XYZcoords[], GLfloat UVcoords[], GLfloat colors[]);
+vector<int> genVBOs(vector<curve> curves, GLfloat XYZcoords[], GLfloat UVcoords[], GLfloat colors[], GLint teamIndex[]);
 #endif
